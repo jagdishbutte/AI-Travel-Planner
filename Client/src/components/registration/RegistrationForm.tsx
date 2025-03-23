@@ -13,9 +13,10 @@ import {
 } from "lucide-react";
 import { useNavigate, Link } from "react-router-dom";
 import { useAuthStore } from "../../store/authStore";
+import { authAPI, RegisterRequest } from "../../lib/apiServices";
 
 export const RegistrationForm = () => {
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<RegisterRequest>({
     name: "",
     email: "",
     password: "",
@@ -24,7 +25,6 @@ export const RegistrationForm = () => {
     age: "",
     nationality: "",
     occupation: "",
-    emergencyContact: "",
     passportNumber: "",
   });
   const [isLoading, setIsLoading] = useState(false);
@@ -38,34 +38,24 @@ export const RegistrationForm = () => {
     setError("");
 
     try {
-      const response = await fetch(
-        `${import.meta.env.VITE_API_BASE_URL}/users/userRegister`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(formData),
-        }
-      );
+      const { data } = await authAPI.register(formData);
 
-      const data = await response.json();
+      if (data.message === "User registered successfully") {
+        // Store the user ID and token
+        localStorage.setItem("userId", data.userId);
+        localStorage.setItem("token", data.token);
 
-      if (!response.ok) {
+        // Update auth state using your auth store
+        signUp(formData.email, data.token, data.userId);
+
+        // Change navigation path to preferences page
+        navigate("/preferences");
+      } else {
         throw new Error(data.message || "Registration failed");
       }
-
-      // Store the token and user ID
-      localStorage.setItem("token", data.token);
-      localStorage.setItem("userId", data.userId);
-
-      // Update auth state using your auth store
-      signUp(formData.email, data.token, data.userId);
-
-      // Change navigation path to preferences page
-      navigate("/preferences");
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Registration failed");
+    } catch (err: any) {
+      console.error("Registration error:", err);
+      setError(err.response?.data?.message || "Registration failed");
     } finally {
       setIsLoading(false);
     }

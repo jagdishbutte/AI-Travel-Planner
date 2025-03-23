@@ -3,6 +3,7 @@ import { motion } from "framer-motion";
 import { Mail, Lock, Loader } from "lucide-react";
 import { useNavigate, Link } from "react-router-dom";
 import { useAuthStore } from "../../store/authStore";
+import { authAPI } from "../../lib/apiServices";
 
 export const LoginForm = () => {
   const [email, setEmail] = useState("");
@@ -18,35 +19,22 @@ export const LoginForm = () => {
     setError("");
 
     try {
-      const response = await fetch(
-        `${import.meta.env.VITE_API_BASE_URL}/users/userLogin`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ email, password }),
-        }
-      );
+      const { data } = await authAPI.login({ email, password });
 
-      const data = await response.json();
+      if (data.message === "You are logged in successfully!") {
+        // Store the user ID
+        localStorage.setItem("userId", data.userId);
 
-      if (!response.ok) {
+        // Update auth state using your auth store
+        await signIn(email, "dummy-token", data.userId);
+
+        navigate("/dashboard");
+      } else {
         throw new Error(data.message || "Login failed");
       }
-
-      // Store the token and user ID
-      localStorage.setItem("token", data.token);
-      localStorage.setItem("userId", data.userId);
-
-      // Update auth state using your auth store
-      await signIn(email, data.token, data.userId);
-
-      navigate("/dashboard");
-    } catch (err) {
-      setError(
-        err instanceof Error ? err.message : "Invalid email or password"
-      );
+    } catch (err: any) {
+      console.error("Login error:", err);
+      setError(err.response?.data?.message || "Invalid email or password");
     } finally {
       setIsLoading(false);
     }

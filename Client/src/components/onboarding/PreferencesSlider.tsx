@@ -43,6 +43,7 @@ import {
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useAuthStore } from "../../store/authStore";
+import { preferencesAPI, UserPreferences } from "../../lib/apiServices";
 
 interface BaseOption {
   label: string;
@@ -351,21 +352,27 @@ export const PreferencesSlider = () => {
   const [currentSlide, setCurrentSlide] = useState(0);
   const [isCompleting, setIsCompleting] = useState(false);
   const [animationPhase, setAnimationPhase] = useState(0);
-  const [preferences, setPreferences] = useState<Record<string, string[]>>(
-    Object.fromEntries(slides.map((slide) => [slide.id, []]))
-  );
+  const [preferences, setPreferences] = useState<UserPreferences>({
+    travelStyle: [],
+    destinations: [],
+    accommodation: [],
+    transportation: [],
+    activities: [],
+    budget: [],
+    tripLength: [],
+  });
   const navigate = useNavigate();
   const setOnboardingComplete = useAuthStore(
     (state) => state.setOnboardingComplete
   );
   const [error, setError] = useState<string | null>(null);
 
-  const handleSelection = (slideId: string, value: string) => {
+  const handleSelection = (slideId: keyof UserPreferences, value: string) => {
     setPreferences((prev) => ({
       ...prev,
       [slideId]: slides[currentSlide].multiSelect
         ? prev[slideId].includes(value)
-          ? prev[slideId].filter((v) => v !== value)
+          ? prev[slideId].filter((v: string) => v !== value)
           : [...prev[slideId], value]
         : [value],
     }));
@@ -389,23 +396,10 @@ export const PreferencesSlider = () => {
       }
 
       // Save preferences to backend
-      const response = await fetch(
-        `${import.meta.env.VITE_API_BASE_URL}/preferences/save`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            userId,
-            ...preferences,
-          }),
-        }
-      );
-      console.log(preferences, "preferences");
-      if (!response.ok) {
-        throw new Error("Failed to save preferences");
-      }
+      await preferencesAPI.savePreferences({
+        userId,
+        ...preferences,
+      });
 
       await new Promise((resolve) => setTimeout(resolve, 1000));
 
@@ -415,11 +409,9 @@ export const PreferencesSlider = () => {
 
       setOnboardingComplete(true);
       navigate("/dashboard");
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error saving preferences:", error);
-      setError(
-        error instanceof Error ? error.message : "Failed to save preferences"
-      );
+      setError(error.response?.data?.message || "Failed to save preferences");
       setIsCompleting(false);
     }
   };
@@ -516,12 +508,15 @@ export const PreferencesSlider = () => {
                     whileHover={{ scale: 1.02 }}
                     whileTap={{ scale: 0.98 }}
                     onClick={() =>
-                      handleSelection(slides[currentSlide].id, option.value)
-                    }
-                    className={`p-6 rounded-xl border-2 bg-gray-800/50 ${
-                      preferences[slides[currentSlide].id].includes(
+                      handleSelection(
+                        slides[currentSlide].id as keyof UserPreferences,
                         option.value
                       )
+                    }
+                    className={`p-6 rounded-xl border-2 bg-gray-800/50 ${
+                      preferences[
+                        slides[currentSlide].id as keyof UserPreferences
+                      ].includes(option.value)
                         ? "border-blue-500 bg-blue-500/20"
                         : "border-gray-700 hover:border-gray-600"
                     }`}
