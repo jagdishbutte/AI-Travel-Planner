@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useContext } from "react";
+import React, { useState, useEffect, useContext, Suspense, lazy } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Hotel,
@@ -37,6 +37,7 @@ import { useTripStore } from "../../store/tripStore";
 import { format } from "date-fns";
 import { Footer } from "../Footer";
 import { ThemeContext } from "../../context/ThemeContext";
+import { LoadingSpinner } from "../common/LoadingSpinner";
 
 interface WeatherInfo {
   condition: "sunny" | "cloudy" | "rainy" | "snowy" | "windy";
@@ -85,6 +86,12 @@ interface EditTripForm {
   aiPrompt: string;
   preferences: string[];
 }
+
+// Lazy load heavy components
+const TripMap = lazy(() => import("./TripMap"));
+const WeatherWidget = lazy(() => import("./WeatherWidget"));
+const AccommodationGallery = lazy(() => import("./AccommodationGallery"));
+const ItineraryTimeline = lazy(() => import("./ItineraryTimeline"));
 
 export default function ViewTrip() {
   const { tripId } = useParams();
@@ -763,6 +770,23 @@ export default function ViewTrip() {
           Trip saved successfully!
         </div>
       )}
+
+      {/* Heavy components load lazily */}
+      <Suspense fallback={<LoadingSpinner />}>
+        <TripMap />
+      </Suspense>
+
+      <Suspense fallback={<LoadingSpinner />}>
+        <WeatherWidget />
+      </Suspense>
+
+      <Suspense fallback={<LoadingSpinner />}>
+        <AccommodationGallery />
+      </Suspense>
+
+      <Suspense fallback={<LoadingSpinner />}>
+        <ItineraryTimeline />
+      </Suspense>
     </div>
   );
 }

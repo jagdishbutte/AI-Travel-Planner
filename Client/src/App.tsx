@@ -1,3 +1,4 @@
+import React, { Suspense } from "react";
 import {
   BrowserRouter as Router,
   Routes,
@@ -6,12 +7,27 @@ import {
 } from "react-router-dom";
 import { Navbar } from "./components/Navbar";
 import { Hero } from "./components/Hero";
-import { LoginForm } from "./components/auth/LoginForm";
-import { RegistrationForm } from "./components/registration/RegistrationForm";
-import { PreferencesSlider } from "./components/onboarding/PreferencesSlider";
-import { DashboardLayout } from "./components/dashboard/DashboardLayout";
+import { LoadingSpinner } from "./components/common/LoadingSpinner";
 import { useAuthStore } from "./store/authStore";
 import { ThemeProvider } from "./context/ThemeContext";
+
+// Lazy load components
+const LoginForm = React.lazy(() => import("./components/auth/LoginForm"));
+const RegistrationForm = React.lazy(
+  () => import("./components/registration/RegistrationForm")
+);
+const PreferencesSlider = React.lazy(() =>
+  import("./components/onboarding/PreferencesSlider").then((module) => ({
+    default: module.default,
+  }))
+);
+const Dashboard = React.lazy(
+  () => import("./components/dashboard/DashboardLayout")
+);
+const CreateTrip = React.lazy(
+  () => import("./components/dashboard/CreateTrip")
+);
+const ViewTrip = React.lazy(() => import("./components/dashboard/ViewTrip"));
 
 function App() {
   const { user, isLoading, hasCompletedOnboarding } = useAuthStore();
@@ -30,49 +46,51 @@ function App() {
         <div className="min-h-screen bg-gray-900">
           {!user && <Navbar />}
           <main>
-            <Routes>
-              {/* Public routes */}
-              <Route path="/" element={<Hero />} />
-              <Route
-                path="/login"
-                element={
-                  user ? <Navigate to="/dashboard" replace /> : <LoginForm />
-                }
-              />
-              <Route
-                path="/register"
-                element={
-                  user ? (
-                    <Navigate to="/preferences" replace />
-                  ) : (
-                    <RegistrationForm />
-                  )
-                }
-              />
-              <Route
-                path="/preferences"
-                element={
-                  !user ? (
-                    <Navigate to="/login" replace />
-                  ) : hasCompletedOnboarding ? (
-                    <Navigate to="/dashboard" replace />
-                  ) : (
-                    <PreferencesSlider />
-                  )
-                }
-              />
+            <Suspense fallback={<LoadingSpinner />}>
+              <Routes>
+                {/* Public routes */}
+                <Route path="/" element={<Hero />} />
+                <Route
+                  path="/login"
+                  element={
+                    user ? <Navigate to="/dashboard" replace /> : <LoginForm />
+                  }
+                />
+                <Route
+                  path="/register"
+                  element={
+                    user ? (
+                      <Navigate to="/preferences" replace />
+                    ) : (
+                      <RegistrationForm />
+                    )
+                  }
+                />
+                <Route
+                  path="/preferences"
+                  element={
+                    !user ? (
+                      <Navigate to="/login" replace />
+                    ) : hasCompletedOnboarding ? (
+                      <Navigate to="/dashboard" replace />
+                    ) : (
+                      <PreferencesSlider />
+                    )
+                  }
+                />
 
-              {/* Protected routes */}
-              <Route
-                path="/dashboard/*"
-                element={
-                  !user ? <Navigate to="/login" replace /> : <DashboardLayout />
-                }
-              />
+                {/* Protected routes */}
+                <Route
+                  path="/dashboard/*"
+                  element={
+                    !user ? <Navigate to="/login" replace /> : <Dashboard />
+                  }
+                />
 
-              {/* Fallback route */}
-              <Route path="*" element={<Navigate to="/" replace />} />
-            </Routes>
+                {/* Fallback route */}
+                <Route path="*" element={<Navigate to="/" replace />} />
+              </Routes>
+            </Suspense>
           </main>
         </div>
       </Router>

@@ -766,3 +766,4 @@ export const CreateTrip = () => {
     </div>
   );
 };
+export default CreateTrip;

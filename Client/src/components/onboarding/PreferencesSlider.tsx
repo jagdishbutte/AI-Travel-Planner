@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   ChevronRight,
@@ -17,20 +17,14 @@ import {
   Home,
   Sun,
   Snowflake,
-  Umbrella,
-  Wind,
-  DollarSign,
   Users,
   Camera,
   Music,
   Wine,
-  Coffee,
   ShoppingBag,
-  Book,
   MapPin,
   Waves,
   Bike,
-  Map,
   LucideIcon,
   Wallet,
   CreditCard,
@@ -365,7 +359,7 @@ export const PreferencesSlider = () => {
   const setOnboardingComplete = useAuthStore(
     (state) => state.setOnboardingComplete
   );
-  const [error, setError] = useState<string | null>(null);
+  const [, setError] = useState<string | null>(null);
 
   const handleSelection = (slideId: keyof UserPreferences, value: string) => {
     setPreferences((prev) => ({
@@ -583,3 +577,5 @@ export const PreferencesSlider = () => {
     </div>
   );
 };
+
+export default PreferencesSlider;
