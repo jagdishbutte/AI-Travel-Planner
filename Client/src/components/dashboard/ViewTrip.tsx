@@ -218,7 +218,7 @@ export default function ViewTrip() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-8">
         <div className="relative h-64 rounded-xl overflow-hidden mb-8">
           <div
-            className="absolute inset-0 bg-cover bg-center h-78 "
+            className="absolute inset-0 bg-cover bg-center"
             style={{
               backgroundImage: `url(${trip.image})`,
             }}
