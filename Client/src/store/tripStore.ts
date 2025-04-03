@@ -11,6 +11,9 @@ export interface TimelineEvent {
   title: string;
   description: string;
   type: "activity" | "transport" | "food" | "accommodation";
+  location?: {
+    name: string;
+  };
 }
 
 export interface DayPlan {
@@ -43,10 +46,77 @@ export interface Trip {
   travelers: number;
   transportationType: "flight" | "train" | "bus";
   status: "planned" | "ongoing" | "completed";
-  itinerary: DayPlan[];
-  weather: WeatherInfo[];
-  accommodation: HotelOption[];
-  image?: string;
+  itinerary: Array<{
+    date: string;
+    events: Array<{
+      time: string;
+      title: string;
+      description: string;
+      type: "activity" | "transport" | "food" | "accommodation";
+      location?: {
+        name: string;
+        coordinates: [number, number];
+        address?: string;
+      };
+      cost?: number;
+      duration?: string;
+      bookingRequired?: boolean;
+      bookingUrl?: string;
+    }>;
+    weather: {
+      condition: "sunny" | "cloudy" | "rainy" | "snowy" | "windy";
+      temperature: number;
+      humidity?: number;
+      precipitation?: number;
+    };
+  }>;
+  accommodation: Array<{
+    id: string;
+    name: string;
+    image: string;
+    rating: number;
+    price: number;
+    description: string;
+    amenities: string[];
+    location: {
+      coordinates: [number, number];
+      address: string;
+    };
+    roomTypes?: Array<{
+      type: string;
+      price: number;
+      capacity: number;
+      available: boolean;
+    }>;
+    contactInfo?: {
+      phone?: string;
+      email?: string;
+      website?: string;
+    };
+  }>;
+  transportationDetails: {
+    type: "flight" | "train" | "bus";
+    details: Array<{
+      from: string;
+      to: string;
+      departure: string;
+      arrival: string;
+      provider: string;
+      price: number;
+      duration: string;
+      stops?: number;
+      bookingReference?: string;
+    }>;
+  };
+  totalCost: {
+    accommodation: number;
+    transportation: number;
+    activities: number;
+    food: number;
+    total: number;
+  };
+  image: string;
+  _id?: string; // MongoDB ID
 }
 
 interface TripState {
@@ -164,6 +234,10 @@ const sampleTrip: Trip = {
       price: 350,
       description: "Luxury hotel with Eiffel Tower views",
       amenities: ["Free WiFi", "Spa", "Restaurant", "Room Service", "Gym"],
+      location: {
+        coordinates: [0, 0],
+        address: ""
+      }
     },
     {
       id: "hotel-2",
@@ -173,6 +247,10 @@ const sampleTrip: Trip = {
       price: 280,
       description: "Boutique hotel in the heart of Paris",
       amenities: ["Free WiFi", "Bar", "Restaurant", "Concierge", "Laundry"],
+      location: {
+        coordinates: [0, 0],
+        address: ""
+      }
     },
   ],
   image: "https://images.unsplash.com/photo-1502602898657-3e91760cbb34",

@@ -2,6 +2,7 @@ import React from "react";
 import { motion } from "framer-motion";
 import { ArrowRight, Globe, MapPin, Calendar } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { Navbar } from "./Navbar";
 
 export const Hero = () => {
   const navigate = useNavigate();
@@ -29,6 +30,7 @@ export const Hero = () => {
 
   return (
     <div className="relative min-h-screen flex flex-col">
+      <Navbar />
       {/* Hero Section */}
       <div className="relative flex items-center flex-1">
         <div

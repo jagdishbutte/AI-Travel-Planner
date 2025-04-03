@@ -378,9 +378,10 @@ export const RegistrationForm = () => {
       <div className="hidden lg:flex lg:w-1/2 relative">
         <div className="absolute inset-0 bg-gradient-to-b from-transparent to-gray-900" />
         <img
-          src="https://images.unsplash.com/photo-1682687220742-aba13b6e50ba"
+          src="runway.svg"
           alt="Travel"
-          className="w-full h-full py-[25%] object-cover"
+          sizes="100vw"
+          className="py-[25%] object-contain"
         />
         <div className="absolute bottom-0 left-0 right-0 p-8">
           <div className="max-w-sm">

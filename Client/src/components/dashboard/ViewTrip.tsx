@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useContext, Suspense, lazy } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Hotel,
@@ -7,13 +7,10 @@ import {
   CloudRain,
   CloudSnow,
   Wind,
-  Clock,
   MapPin,
   Coffee,
-  Utensils,
   Camera,
   Bus,
-  Train,
   Share2,
   Edit3,
   Bookmark,
@@ -25,19 +22,18 @@ import {
   MessageCircle,
   Copy,
   Check,
-  MessageSquare,
-  Calendar as CalendarIcon,
-  Heart,
-  Mail,
-  Phone,
-  Instagram,
 } from "lucide-react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useTripStore } from "../../store/tripStore";
 import { format } from "date-fns";
 import { Footer } from "../Footer";
 import { ThemeContext } from "../../context/ThemeContext";
-import { LoadingSpinner } from "../common/LoadingSpinner";
+// import { LoadingSpinner } from "../common/LoadingSpinner";
+import { TimelineEvent as BaseTimelineEvent } from "../../store/tripStore";
+
+interface TimelineEvent extends BaseTimelineEvent {
+  icon: typeof Camera | typeof Bus | typeof Coffee | typeof Hotel;
+}
 
 interface WeatherInfo {
   condition: "sunny" | "cloudy" | "rainy" | "snowy" | "windy";
@@ -48,14 +44,6 @@ interface WeatherInfo {
     | typeof CloudRain
     | typeof CloudSnow
     | typeof Wind;
-}
-
-interface TimelineEvent {
-  time: string;
-  title: string;
-  description: string;
-  type: "activity" | "transport" | "food" | "accommodation";
-  icon: typeof Camera | typeof Bus | typeof Coffee | typeof Hotel;
 }
 
 interface DayPlan {
@@ -80,18 +68,19 @@ interface EditTripForm {
   budget: {
     amount: number;
     type: "per_person" | "total";
+    duration: "entire_trip" | "per_day";
   };
   numberOfPersons: number;
-  transportationType: string;
+  transportationType: "flight" | "train" | "bus";
   aiPrompt: string;
   preferences: string[];
 }
 
 // Lazy load heavy components
-const TripMap = lazy(() => import("./TripMap"));
-const WeatherWidget = lazy(() => import("./WeatherWidget"));
-const AccommodationGallery = lazy(() => import("./AccommodationGallery"));
-const ItineraryTimeline = lazy(() => import("./ItineraryTimeline"));
+// const TripMap = lazy(() => import("./TripMap"));
+// const WeatherWidget = lazy(() => import("./WeatherWidget"));
+// const AccommodationGallery = lazy(() => import("./AccommodationGallery"));
+// const ItineraryTimeline = lazy(() => import("./ItineraryTimeline"));
 
 export default function ViewTrip() {
   const { tripId } = useParams();
@@ -116,11 +105,12 @@ export default function ViewTrip() {
     budget: {
       amount: trip?.budget.amount || 0,
       type: trip?.budget.type || "total",
+      duration: trip?.budget.duration || "entire_trip",
     },
-    numberOfPersons: trip?.numberOfPersons || 1,
-    transportationType: trip?.transportationType || "",
+    numberOfPersons: trip?.travelers || 1,
+    transportationType: trip?.transportationType || "flight",
     aiPrompt: "",
-    preferences: trip?.preferences || [],
+    preferences: [],
   });
   const navigate = useNavigate();
   const { theme } = useContext(ThemeContext);
@@ -149,8 +139,8 @@ export default function ViewTrip() {
       rainy: CloudRain,
       snowy: CloudSnow,
       windy: Wind,
-    };
-    return icons[condition];
+    } as const;
+    return icons[condition] || Cloud; // Provide a fallback icon
   };
 
   const getEventIcon = (type: TimelineEvent["type"]) => {
@@ -159,8 +149,8 @@ export default function ViewTrip() {
       transport: Bus,
       food: Coffee,
       accommodation: Hotel,
-    };
-    return icons[type];
+    } as const;
+    return icons[type] || Camera; // Provide a fallback icon
   };
 
   const handleSaveTrip = async () => {
@@ -172,9 +162,8 @@ export default function ViewTrip() {
       startDate: editForm.startDate,
       endDate: editForm.endDate,
       budget: editForm.budget,
-      numberOfPersons: editForm.numberOfPersons,
+      travelers: editForm.numberOfPersons,
       transportationType: editForm.transportationType,
-      preferences: editForm.preferences,
     });
     setIsEditing(false);
     setIsEditModalOpen(false);
@@ -220,7 +209,6 @@ export default function ViewTrip() {
 
     return () => clearTimeout(timer);
   }, [isSaved]);
-
   return (
     <div
       className={`min-h-screen mt-12 ${
@@ -230,12 +218,9 @@ export default function ViewTrip() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-8">
         <div className="relative h-64 rounded-xl overflow-hidden mb-8">
           <div
-            className="absolute inset-0 bg-cover bg-center"
+            className="absolute inset-0 bg-cover bg-center h-78 "
             style={{
-              backgroundImage: `url(${
-                trip.image ||
-                "https://images.unsplash.com/photo-1469854523086-cc02fe5d8800"
-              })`,
+              backgroundImage: `url(${trip.image})`,
             }}
           >
             <div className="absolute inset-0 bg-gray-900/50 backdrop-blur-[2px]" />
@@ -267,7 +252,7 @@ export default function ViewTrip() {
                 >
                   <p className="text-gray-400 text-sm">Budget</p>
                   <p className="text-xl font-semibold">
-                    ₹{convertToRupees(trip.budget.amount).toLocaleString()}
+                    ₹{trip.totalCost.total}
                     <span className="text-sm text-gray-400">
                       /{trip.budget.type === "per_person" ? "person" : "total"}
                     </span>
@@ -378,6 +363,11 @@ export default function ViewTrip() {
                             </span>
                           </div>
                           <p className="text-gray-400">{event.description}</p>
+                          {event.location && (
+                            <p className="text-sm text-gray-500 mt-2">
+                              {event.location.name}
+                            </p>
+                          )}
                         </div>
                       </div>
                     </div>
@@ -395,8 +385,8 @@ export default function ViewTrip() {
           >
             <h2 className="text-xl font-semibold mb-4">Weather Forecast</h2>
             <div className="space-y-3">
-              {trip.weather.map((day, index) => {
-                const WeatherIcon = getWeatherIcon(day.condition);
+              {trip.itinerary.map((day, index) => {
+                const WeatherIcon = getWeatherIcon(day.weather.condition);
                 return (
                   <div
                     key={index}
@@ -410,7 +400,7 @@ export default function ViewTrip() {
                     <span className="text-sm">Day {index + 1}</span>
                     <div className="flex items-center">
                       <WeatherIcon className="h-5 w-5 text-blue-500 mr-2" />
-                      <span>{day.temperature}°C</span>
+                      <span>{day.weather.temperature}°C</span>
                     </div>
                   </div>
                 );
@@ -643,7 +633,10 @@ export default function ViewTrip() {
                       onChange={(e) =>
                         setEditForm({
                           ...editForm,
-                          transportationType: e.target.value,
+                          transportationType: e.target.value as
+                            | "flight"
+                            | "train"
+                            | "bus",
                         })
                       }
                       className="w-full px-4 py-3 bg-gray-700/50 border border-gray-600 rounded-lg text-white"
@@ -651,7 +644,6 @@ export default function ViewTrip() {
                       <option value="flight">Flight</option>
                       <option value="train">Train</option>
                       <option value="bus">Bus</option>
-                      <option value="car">Car</option>
                     </select>
                   </div>
 
@@ -772,7 +764,7 @@ export default function ViewTrip() {
       )}
 
       {/* Heavy components load lazily */}
-      <Suspense fallback={<LoadingSpinner />}>
+      {/* <Suspense fallback={<LoadingSpinner />}>
         <TripMap />
       </Suspense>
 
@@ -786,7 +778,7 @@ export default function ViewTrip() {
 
       <Suspense fallback={<LoadingSpinner />}>
         <ItineraryTimeline />
-      </Suspense>
+      </Suspense> */}
     </div>
   );
 }

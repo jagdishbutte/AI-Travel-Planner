@@ -1,6 +1,7 @@
 import { apiConnector } from "./apiConnector";
 import { AxiosResponse } from "axios";
 import { auth, preferences, trips } from "./apis";
+import { VITE_API_BASE_URL } from "./apiConnections";
 
 // Common Types
 export interface ApiResponse<T = any> {
@@ -76,6 +77,24 @@ export interface Trip extends TripRequest {
   image: string;
 }
 
+interface GenerateTripRequest {
+  location: string;
+  days: number;
+  travelers: number;
+  budget: {
+    amount: number;
+    type: "per_person" | "total";
+    duration: "entire_trip" | "per_day";
+  };
+  transportationType: "flight" | "train" | "bus";
+  startDate: string;
+  endDate: string;
+}
+
+interface TripPlan {
+  // ... your trip plan interface
+}
+
 // API Services
 export const authAPI = {
   login: async (data: LoginRequest): Promise<AxiosResponse<LoginResponse>> => {
@@ -129,5 +148,29 @@ export const tripsAPI = {
 
   deleteTrip: async (id: string): Promise<AxiosResponse<ApiResponse<void>>> => {
     return apiConnector("DELETE", trips.DELETE(id), null, null, null, null);
+  },
+
+  generateAITrip: (data: GenerateTripRequest) => {
+    return apiConnector(
+      "POST",
+      `${VITE_API_BASE_URL}/plan/generate`,
+      data,
+      null,
+      null,
+      null
+    );
+  },
+};
+
+export const tripAPI = {
+  generateAITrip: (data: GenerateTripRequest) => {
+    return apiConnector(
+      "POST",
+      `${VITE_API_BASE_URL}/plan/generate`,
+      data,
+      null,
+      null,
+      null
+    );
   },
 };

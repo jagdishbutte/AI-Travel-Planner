@@ -32,49 +32,49 @@ export const TripBudget = () => {
   }
 
   // Helper function to convert USD to INR (1 USD = ~83 INR)
-  const convertToRupees = (usd: number) => {
-    return Math.round(usd * 83);
-  };
+  // const convertToRupees = (usd: number) => {
+  //   return Math.round(usd * 83);
+  // };
 
   // Example budget breakdown
   const budgetBreakdown = {
     transportation: {
       icon: Plane,
       title: "Transportation",
-      amount: Math.round(trip.budget.amount * 0.3), // 30% of total budget
+      amount: Math.round(trip.totalCost.total * 0.3), // 30% of total budget
       items: [
-        { name: "Flights", amount: Math.round(trip.budget.amount * 0.25) },
+        { name: "Flights", amount: Math.round(trip.totalCost.total * 0.25) },
         {
           name: "Local Transport",
-          amount: Math.round(trip.budget.amount * 0.05),
+          amount: Math.round(trip.totalCost.total * 0.05),
         },
       ],
     },
     accommodation: {
       icon: Hotel,
       title: "Accommodation",
-      amount: Math.round(trip.budget.amount * 0.4), // 40% of total budget
+      amount: Math.round(trip.totalCost.total * 0.4), // 40% of total budget
       items: [
-        { name: "Hotels", amount: Math.round(trip.budget.amount * 0.35) },
-        { name: "Taxes & Fees", amount: Math.round(trip.budget.amount * 0.05) },
+        { name: "Hotels", amount: Math.round(trip.totalCost.total * 0.35) },
+        { name: "Taxes & Fees", amount: Math.round(trip.totalCost.total * 0.05) },
       ],
     },
     activities: {
       icon: Ticket,
       title: "Activities & Entertainment",
-      amount: Math.round(trip.budget.amount * 0.15), // 15% of total budget
+      amount: Math.round(trip.totalCost.total * 0.15), // 15% of total budget
       items: [
-        { name: "Tours", amount: Math.round(trip.budget.amount * 0.08) },
-        { name: "Attractions", amount: Math.round(trip.budget.amount * 0.07) },
+        { name: "Tours", amount: Math.round(trip.totalCost.total * 0.08) },
+        { name: "Attractions", amount: Math.round(trip.totalCost.total * 0.07) },
       ],
     },
     food: {
       icon: Coffee,
       title: "Food & Dining",
-      amount: Math.round(trip.budget.amount * 0.15), // 15% of total budget
+      amount: Math.round(trip.totalCost.total * 0.15), // 15% of total budget
       items: [
-        { name: "Restaurants", amount: Math.round(trip.budget.amount * 0.1) },
-        { name: "Groceries", amount: Math.round(trip.budget.amount * 0.05) },
+        { name: "Restaurants", amount: Math.round(trip.totalCost.total * 0.1) },
+        { name: "Groceries", amount: Math.round(trip.totalCost.total * 0.05) },
       ],
     },
   };
@@ -105,7 +105,7 @@ export const TripBudget = () => {
             </div>
             <div className="text-right">
               <p className="text-3xl font-bold text-white">
-                ₹{convertToRupees(trip.budget.amount).toLocaleString()}
+                ₹{(trip.totalCost.total).toLocaleString()}
               </p>
               <p className="text-gray-400">
                 {trip.budget.type === "per_person" ? "per person" : "total"}
@@ -138,7 +138,7 @@ export const TripBudget = () => {
               <p className="text-2xl font-semibold">
                 ₹
                 {Math.round(
-                  convertToRupees(trip.budget.amount / trip.itinerary.length)
+                (trip.totalCost.total / trip.itinerary.length)
                 ).toLocaleString()}
               </p>
             </div>
@@ -150,7 +150,7 @@ export const TripBudget = () => {
               <p className="text-2xl font-semibold">
                 ₹
                 {Math.round(
-                  convertToRupees(trip.budget.amount * 1.1)
+                  (trip.totalCost.total * 1.1)
                 ).toLocaleString()}
               </p>
             </div>
@@ -175,14 +175,14 @@ export const TripBudget = () => {
                     >
                       <span className="text-gray-300">{item.name}</span>
                       <span className="font-medium">
-                        ₹{convertToRupees(item.amount).toLocaleString()}
+                        ₹{(item.amount).toLocaleString()}
                       </span>
                     </div>
                   ))}
                   <div className="flex items-center justify-between pt-4">
                     <span className="font-semibold">Total</span>
                     <span className="font-semibold text-blue-400">
-                      ₹{convertToRupees(category.amount).toLocaleString()}
+                      ₹{(category.amount).toLocaleString()}
                     </span>
                   </div>
                 </div>

@@ -21,6 +21,7 @@ import usePlacesAutocomplete from "use-places-autocomplete";
 import { useTripStore } from "../../store/tripStore";
 import { format, differenceInDays } from "date-fns";
 import { Footer } from "../Footer";
+import { tripAPI } from "../../lib/apiServices";
 
 type BudgetType = "per_person" | "total";
 type BudgetDuration = "entire_trip" | "per_day";
@@ -243,113 +244,59 @@ export const CreateTrip = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setErrors({
-      origin: "",
-      destination: "",
-      travelers: "",
-      dates: "",
-      budget: "",
-    });
-
-    let hasErrors = false;
-    const newErrors = {
-      origin: "",
-      destination: "",
-      travelers: "",
-      dates: "",
-      budget: "",
-    };
-
-    if (!formData.origin.trim()) {
-      newErrors.origin = "Please enter your starting location";
-      hasErrors = true;
-    }
-
-    if (!formData.destination.trim()) {
-      newErrors.destination = "Please enter your destination";
-      hasErrors = true;
-    }
-
-    if (formData.travelers < 1) {
-      newErrors.travelers = "Number of travelers must be at least 1";
-      hasErrors = true;
-    }
-
-    if (!formData.startDate || !formData.endDate) {
-      newErrors.dates = "Please select both start and end dates";
-      hasErrors = true;
-    }
-
-    if (formData.budget.amount < 1) {
-      newErrors.budget = "Please enter a valid budget amount";
-      hasErrors = true;
-    }
-
-    if (hasErrors) {
-      setErrors(newErrors);
-      return;
-    }
-
     setIsLoading(true);
 
     try {
-      // Simulate API call
-      await new Promise((resolve) => setTimeout(resolve, 2000));
-
-      const tripId = Math.random().toString(36).substr(2, 9);
-      const generatedItinerary = generateItinerary(
+      // Calculate number of days
+      const days =
         formData.startDate && formData.endDate
           ? differenceInDays(formData.endDate, formData.startDate) + 1
-          : 1,
-        formData.destination
-      );
+          : 1;
 
-      addTrip({
-        id: tripId,
-        title: `Trip to ${formData.destination}`,
-        destination: formData.destination,
+      // Format request data
+      const requestData = {
+        location: formData.destination,
+        days,
+        travelers: formData.travelers,
+        budget: {
+          amount: formData.budget.amount,
+          type: formData.budget.type,
+          duration: formData.budget.duration,
+        },
+        transportationType: formData.transportationType,
         startDate:
           formData.startDate?.toISOString() || new Date().toISOString(),
         endDate: formData.endDate?.toISOString() || new Date().toISOString(),
-        budget: formData.budget,
-        travelers: formData.travelers,
-        transportationType: formData.transportationType,
+        userId: localStorage.getItem("userId"),
+        preferences: {
+          activityLevel: "moderate",
+          interests: [],
+          dietaryRestrictions: [],
+          accommodationType: "mid_range",
+        },
+      };
+
+      // Call the AI API
+      const response = await tripAPI.generateAITrip(requestData);
+      const tripPlan = response.data;
+
+      // Add trip to store with database ID
+      addTrip({
+        ...tripPlan,
+        id:
+          tripPlan._id ||
+          tripPlan.id ||
+          Math.random().toString(36).substr(2, 9),
         status: "planned",
-        itinerary: generatedItinerary,
-        weather: generatedItinerary.map((day) => day.weather),
-        accommodation: [
-          {
-            id: "hotel-1",
-            name: "Grand Plaza Hotel",
-            image:
-              "https://images.unsplash.com/photo-1566073771259-6a8506099945",
-            rating: 4.8,
-            price: Math.floor(formData.budget.amount * 0.2),
-            description: "Luxury hotel with amazing views",
-            amenities: ["Free WiFi", "Pool", "Spa", "Restaurant", "Gym"],
-          },
-          {
-            id: "hotel-2",
-            name: "Boutique Inn",
-            image:
-              "https://images.unsplash.com/photo-1582719478250-c89cae4dc85b",
-            rating: 4.5,
-            price: Math.floor(formData.budget.amount * 0.15),
-            description: "Charming boutique hotel in the heart of the city",
-            amenities: ["Free WiFi", "Restaurant", "Bar", "Garden", "Parking"],
-          },
-        ],
-        image:
-          "https://source.unsplash.com/featured/?" +
-          encodeURIComponent(formData.destination + " landmark"),
       });
 
-      navigate(`/dashboard/trips/${tripId}`);
+      navigate(`/dashboard/trips/${tripPlan._id || tripPlan.id}`);
     } catch (err) {
       setErrors((prev) => ({
         ...prev,
         general: "Failed to create trip. Please try again.",
       }));
+      console.error("Error generating trip:", err);
     } finally {
       setIsLoading(false);
     }
