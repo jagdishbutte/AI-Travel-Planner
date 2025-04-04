@@ -464,7 +464,7 @@ export default function ViewTrip() {
                         </div>
                         <div className="flex items-center justify-between">
                           <span className="text-lg font-semibold">
-                            ₹{convertToRupees(hotel.price).toLocaleString()}
+                            ₹{(hotel.price).toLocaleString()}
                             <span className="text-sm text-gray-400">
                               /night
                             </span>
@@ -482,7 +482,7 @@ export default function ViewTrip() {
         </div>
 
         {/* Fixed Action Buttons */}
-        <div className="sticky bottom-8 left-0 right-0 flex justify-center z-50 mt-8">
+        <div className="sticky bottom-8 left-0 right-0 flex justify-center z-30 mt-8">
           <div className="flex gap-4 rounded-lg">
             <button
               onClick={() => setIsEditModalOpen(true)}
