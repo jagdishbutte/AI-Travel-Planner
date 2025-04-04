@@ -1,10 +1,5 @@
 import { motion } from "framer-motion";
-import {
-  Calendar,
-  Users,
-  Wallet,
-  ArrowRight,
-} from "lucide-react";
+import { Calendar, Users, Wallet, ArrowRight } from "lucide-react";
 import { useTripStore } from "../../store/tripStore";
 import { useNavigate } from "react-router-dom";
 import { Trip } from "../../types";
@@ -92,19 +87,11 @@ const TripCard = ({ trip, showBookNow = false }: TripCardProps) => {
 const SectionTitle = ({ title }: { title: string }) => (
   <div className="flex items-center justify-between mb-6">
     <h2 className="text-2xl font-semibold text-white">{title}</h2>
-    <button
-      onClick={() => {}}
-      className="text-blue-400 hover:text-blue-300 text-sm font-medium flex items-center"
-    >
-      View All
-      <ArrowRight className="h-4 w-4 ml-1" />
-    </button>
   </div>
 );
 
 export const Overview = () => {
   const { trips } = useTripStore();
-  // const navigate = useNavigate();
 
   // Example trips for different sections
   const forYouTrips: Trip[] = [
