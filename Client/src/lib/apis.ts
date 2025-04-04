@@ -62,7 +62,8 @@ export interface TripRequest {
 }
 
 export interface Trip extends TripRequest {
-  id: string;
+  id?: string;
+  _id?: string;
   title: string;
   status: "planned" | "ongoing" | "completed";
   itinerary: any[];
@@ -83,8 +84,8 @@ export const preferences = {
 };
 
 export const trips = {
-  CREATE: `${VITE_API_BASE_URL}/trips/create`,
-  GET_ALL: `${VITE_API_BASE_URL}/trips/all`,
+  CREATE: `${VITE_API_BASE_URL}/api/trips/create`,
+  GET_ALL: `${VITE_API_BASE_URL}/api/trips/all`,
   GET_ONE: (id: string) => `${VITE_API_BASE_URL}/trips/${id}`,
   UPDATE: (id: string) => `${VITE_API_BASE_URL}/trips/${id}`,
   DELETE: (id: string) => `${VITE_API_BASE_URL}/trips/${id}`,
