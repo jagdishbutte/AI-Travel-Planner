@@ -35,6 +35,7 @@ const fetchHotelImage = async (
     try {
         // Combine hotel name with destination for better results
         const query = `${hotelName} hotel ${destination}`;
+        // console.log(query, "query");
         const response = await fetch(
             `https://api.unsplash.com/search/photos?query=${encodeURIComponent(query)}&client_id=${UNSPALSH_ACCESS_KEY}`
         );
@@ -66,7 +67,7 @@ export const generateTripPlan = async (
     try {
         const prompt = generateTripPrompt(req);
 
-        const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+        const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
         const result = await model.generateContent(prompt);
         const response = result.response;
         const content = response.text();

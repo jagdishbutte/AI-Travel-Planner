@@ -8,7 +8,7 @@ const router = express.Router();
 router.post("/generate", async (req, res) => {
   try {
     const tripPlan = await generateTripPlan(req.body);
-    console.log("BODY:", req.body);
+    // console.log("BODY:", req.body);
     const trip = new Trip({
       user: req.body.userId, 
       location: tripPlan.destination,
