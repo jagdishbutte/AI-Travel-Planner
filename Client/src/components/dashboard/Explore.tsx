@@ -1,5 +1,4 @@
-import React from "react";
-import { Search, Globe } from "lucide-react";
+import { Search } from "lucide-react";
 
 export const Explore = () => {
   const destinations = [
