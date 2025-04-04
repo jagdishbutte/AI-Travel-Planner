@@ -28,10 +28,10 @@ const PreferencesSlider = React.lazy(() =>
 const Dashboard = React.lazy(
   () => import("./components/dashboard/DashboardLayout")
 );
-const CreateTrip = React.lazy(
-  () => import("./components/dashboard/CreateTrip")
-);
-const ViewTrip = React.lazy(() => import("./components/dashboard/ViewTrip"));
+// const CreateTrip = React.lazy(
+//   () => import("./components/dashboard/CreateTrip")
+// );
+// const ViewTrip = React.lazy(() => import("./components/dashboard/ViewTrip"));
 
 function App() {
   const { user, isLoading, hasCompletedOnboarding } = useAuthStore();

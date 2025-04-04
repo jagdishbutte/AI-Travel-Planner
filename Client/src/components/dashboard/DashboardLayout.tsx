@@ -3,7 +3,7 @@ import { Routes, Route } from "react-router-dom";
 import { DashboardNavbar } from "./DashboardNavbar";
 import { Overview } from "./Overview";
 import { Explore } from "./Explore";
-import { Trips } from "./Trips";
+import { Trips } from "../travel/Trips";
 import { Settings } from "./Settings";
 import { CreateTrip } from "./CreateTrip";
 import ViewTrip from "./ViewTrip";
@@ -13,7 +13,7 @@ import { Destinations } from "../explore/Destinations";
 import { PopularTrips } from "../explore/PopularTrips";
 import { TravelGuides } from "../explore/TravelGuides";
 import { Footer } from "../../components/Footer";
-import { Calendar } from "./Calendar";
+import { Calendar } from "../travel/Calendar";
 
 export const DashboardLayout = () => {
   const { theme } = useContext(ThemeContext);
