@@ -247,10 +247,13 @@ export default function ViewTrip() {
             </div>
             <div className="flex items-center space-x-4 text-lg">
               <span className="flex items-center">
-                <Users className="h-5 w-5 mr-1" /> 
-                {trip.travelers} Travelers</span>
+                <Users className="h-5 w-5 mr-1" />
+                {trip.travelers} Travelers
+              </span>
               <span className="flex items-center">
-                <CalendarDays className="h-5 w-5 mr-1" /> {trip.itinerary.length} days</span>
+                <CalendarDays className="h-5 w-5 mr-1" />{" "}
+                {trip.itinerary.length} days
+              </span>
             </div>
           </div>
         </div>
@@ -473,14 +476,14 @@ export default function ViewTrip() {
                         </div>
                         <div className="flex items-center justify-between">
                           <span className="text-lg font-semibold">
-                            ₹{(hotel.price).toLocaleString()}
+                            ₹{hotel.price.toLocaleString()}
                             <span className="text-sm text-gray-400">
                               /night
                             </span>
                           </span>
-                          <button className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors">
+                          {/* <button className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors">
                             Book Now
-                          </button>
+                          </button> */}
                         </div>
                       </div>
                     </motion.div>

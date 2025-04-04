@@ -8,7 +8,7 @@ import {
   Plus,
   ChevronDown,
   Search,
-  Bell,
+  // Bell,
   Compass,
   Map,
   Settings,
@@ -17,7 +17,7 @@ import {
   ChevronRight,
   User,
   History,
-  Star,
+  // Star,
   HelpCircle,
 } from "lucide-react";
 import { motion } from "framer-motion";
@@ -165,35 +165,35 @@ export const DashboardNavbar = () => {
       icon: Briefcase,
       dropdown: [
         { label: "My Trips", path: "/dashboard/trips" },
-        { label: "Saved Places", path: "/dashboard/saved" },
+        // { label: "Saved Places", path: "/dashboard/saved" },
         { label: "Calendar", path: "/dashboard/calendar" },
-        { label: "Messages", path: "/dashboard/messages" },
+        // { label: "Messages", path: "/dashboard/messages" },
       ],
     },
   ] as const;
 
   type NavItem = (typeof mainNavItems)[number];
 
-  const notifications = [
-    {
-      id: 1,
-      title: "Trip Reminder",
-      message: "Your trip to Paris starts in 3 days!",
-      time: "2 hours ago",
-    },
-    {
-      id: 2,
-      title: "Special Offer",
-      message: "Get 20% off on your next booking",
-      time: "5 hours ago",
-    },
-    {
-      id: 3,
-      title: "New Message",
-      message: "You have a new message from your guide",
-      time: "1 day ago",
-    },
-  ];
+  // const notifications = [
+  //   {
+  //     id: 1,
+  //     title: "Trip Reminder",
+  //     message: "Your trip to Paris starts in 3 days!",
+  //     time: "2 hours ago",
+  //   },
+  //   {
+  //     id: 2,
+  //     title: "Special Offer",
+  //     message: "Get 20% off on your next booking",
+  //     time: "5 hours ago",
+  //   },
+  //   {
+  //     id: 3,
+  //     title: "New Message",
+  //     message: "You have a new message from your guide",
+  //     time: "1 day ago",
+  //   },
+  // ];
 
   const NavItem = ({ item }: { item: NavItem }) => {
     const hasDropdown = "dropdown" in item;
@@ -280,7 +280,7 @@ export const DashboardNavbar = () => {
           {/* Right side controls */}
           <div className="flex items-center space-x-4">
             {/* Notifications */}
-            <div className="relative" ref={notificationsRef}>
+            {/* <div className="relative" ref={notificationsRef}>
               <button
                 onClick={() => {
                   setIsNotificationsOpen(!isNotificationsOpen);
@@ -321,7 +321,7 @@ export const DashboardNavbar = () => {
                   </div>
                 </div>
               )}
-            </div>
+            </div> */}
 
             <motion.button
               whileHover={{ scale: 1.05 }}
@@ -385,14 +385,14 @@ export const DashboardNavbar = () => {
                       <History className="h-4 w-4 mr-2" />
                       Travel History
                     </Link>
-                    <Link
+                    {/* <Link
                       to="/dashboard/favorites"
                       onClick={() => setIsProfileOpen(false)}
                       className="flex items-center px-4 py-2 text-sm text-gray-300 hover:bg-gray-700 hover:text-white transition-colors"
                     >
                       <Star className="h-4 w-4 mr-2" />
                       Favorites
-                    </Link>
+                    </Link> */}
                     <Link
                       to="/dashboard/settings"
                       onClick={() => setIsProfileOpen(false)}

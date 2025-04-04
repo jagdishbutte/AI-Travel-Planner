@@ -3,7 +3,6 @@ import { Calendar, Users, Wallet, ArrowRight } from "lucide-react";
 import { useTripStore } from "../../store/tripStore";
 import { useNavigate } from "react-router-dom";
 import { Trip } from "../../types";
-import { useSearch } from "../../context/SearchContext";
 
 interface TripCardProps {
   trip: Trip;
@@ -92,7 +91,6 @@ const SectionTitle = ({ title }: { title: string }) => (
 
 export const Overview = () => {
   const { trips } = useTripStore();
-  const { searchQuery } = useSearch();
 
   // Example trips for different sections
   const forYouTrips: Trip[] = [
@@ -239,82 +237,55 @@ export const Overview = () => {
     },
   ];
 
-  // Filter trips based on search query
-  const filterTrips = (trips: Trip[]) => {
-    if (!searchQuery.trim()) return trips;
-    return trips.filter(
-      (trip) =>
-        trip.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        trip.destination.toLowerCase().includes(searchQuery.toLowerCase())
-    );
-  };
-
-  const filteredForYouTrips = filterTrips(forYouTrips);
-  const filteredTrendingTrips = filterTrips(trendingTrips);
-  const filteredExploreTrips = filterTrips(exploreTrips);
-
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-12">
-      {/* Your Trips Section - Only shown if user has trips */}
-      {trips.length > 0 && (
+    <>
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-12">
+        {/* Your Trips Section */}
         <section>
           <SectionTitle title="Your Trips" />
+          {trips.length > 0 ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {trips.map((trip) => (
+                <TripCard key={trip.id} trip={trip} />
+              ))}
+            </div>
+          ) : (
+            <div className="text-center py-12">
+              <p className="text-gray-400">You don't have any trips yet.</p>
+            </div>
+          )}
+        </section>
+
+        {/* For You Section */}
+        <section>
+          <SectionTitle title="For You" />
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {filterTrips(trips).map((trip) => (
+            {forYouTrips.map((trip) => (
               <TripCard key={trip.id} trip={trip} />
             ))}
           </div>
         </section>
-      )}
 
-      {/* For You Section */}
-      {filteredForYouTrips.length > 0 && (
-        <section>
-          <SectionTitle title="For You" />
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {filteredForYouTrips.map((trip) => (
-              <TripCard key={trip.id} trip={trip} showBookNow />
-            ))}
-          </div>
-        </section>
-      )}
-
-      {/* Trending Section */}
-      {filteredTrendingTrips.length > 0 && (
+        {/* Trending Section */}
         <section>
           <SectionTitle title="Trending Now" />
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {filteredTrendingTrips.map((trip) => (
-              <TripCard key={trip.id} trip={trip} showBookNow />
+            {trendingTrips.map((trip) => (
+              <TripCard key={trip.id} trip={trip} />
             ))}
           </div>
         </section>
-      )}
 
-      {/* Explore Section */}
-      {filteredExploreTrips.length > 0 && (
+        {/* Explore Section */}
         <section>
-          <SectionTitle title="Explore More" />
+          <SectionTitle title="Explore" />
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {filteredExploreTrips.map((trip) => (
-              <TripCard key={trip.id} trip={trip} showBookNow />
+            {exploreTrips.map((trip) => (
+              <TripCard key={trip.id} trip={trip} />
             ))}
           </div>
         </section>
-      )}
-
-      {/* No Results Message */}
-      {searchQuery.trim() &&
-        filteredForYouTrips.length === 0 &&
-        filteredTrendingTrips.length === 0 &&
-        filteredExploreTrips.length === 0 &&
-        filterTrips(trips).length === 0 && (
-          <div className="text-center py-12">
-            <p className="text-gray-400 text-lg">
-              No results found for "{searchQuery}"
-            </p>
-          </div>
-        )}
-    </div>
+      </div>
+    </>
   );
 };
