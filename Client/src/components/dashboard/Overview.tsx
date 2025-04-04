@@ -3,7 +3,7 @@ import { Calendar, Users, Wallet, ArrowRight } from "lucide-react";
 import { useTripStore } from "../../store/tripStore";
 import { useNavigate } from "react-router-dom";
 import { Trip } from "../../types";
-import { Footer } from "../../components/Footer";
+import { useSearch } from "../../context/SearchContext";
 
 interface TripCardProps {
   trip: Trip;
@@ -92,6 +92,7 @@ const SectionTitle = ({ title }: { title: string }) => (
 
 export const Overview = () => {
   const { trips } = useTripStore();
+  const { searchQuery } = useSearch();
 
   // Example trips for different sections
   const forYouTrips: Trip[] = [
@@ -238,52 +239,82 @@ export const Overview = () => {
     },
   ];
 
-  return (
-    <>
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-12">
-        {/* Your Trips Section - Only shown if user has trips */}
-        {trips.length > 0 && (
-          <section>
-            <SectionTitle title="Your Trips" />
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {trips.map((trip) => (
-                <TripCard key={trip.id} trip={trip} />
-              ))}
-            </div>
-          </section>
-        )}
+  // Filter trips based on search query
+  const filterTrips = (trips: Trip[]) => {
+    if (!searchQuery.trim()) return trips;
+    return trips.filter(
+      (trip) =>
+        trip.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        trip.destination.toLowerCase().includes(searchQuery.toLowerCase())
+    );
+  };
 
-        {/* For You Section */}
+  const filteredForYouTrips = filterTrips(forYouTrips);
+  const filteredTrendingTrips = filterTrips(trendingTrips);
+  const filteredExploreTrips = filterTrips(exploreTrips);
+
+  return (
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-12">
+      {/* Your Trips Section - Only shown if user has trips */}
+      {trips.length > 0 && (
+        <section>
+          <SectionTitle title="Your Trips" />
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {filterTrips(trips).map((trip) => (
+              <TripCard key={trip.id} trip={trip} />
+            ))}
+          </div>
+        </section>
+      )}
+
+      {/* For You Section */}
+      {filteredForYouTrips.length > 0 && (
         <section>
           <SectionTitle title="For You" />
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {forYouTrips.map((trip) => (
+            {filteredForYouTrips.map((trip) => (
               <TripCard key={trip.id} trip={trip} showBookNow />
             ))}
           </div>
         </section>
+      )}
 
-        {/* Trending Section */}
+      {/* Trending Section */}
+      {filteredTrendingTrips.length > 0 && (
         <section>
           <SectionTitle title="Trending Now" />
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {trendingTrips.map((trip) => (
+            {filteredTrendingTrips.map((trip) => (
               <TripCard key={trip.id} trip={trip} showBookNow />
             ))}
           </div>
         </section>
+      )}
 
-        {/* Explore Section */}
+      {/* Explore Section */}
+      {filteredExploreTrips.length > 0 && (
         <section>
-          <SectionTitle title="Explore" />
+          <SectionTitle title="Explore More" />
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {exploreTrips.map((trip) => (
+            {filteredExploreTrips.map((trip) => (
               <TripCard key={trip.id} trip={trip} showBookNow />
             ))}
           </div>
         </section>
-      </div>
-      <Footer />
-    </>
+      )}
+
+      {/* No Results Message */}
+      {searchQuery.trim() &&
+        filteredForYouTrips.length === 0 &&
+        filteredTrendingTrips.length === 0 &&
+        filteredExploreTrips.length === 0 &&
+        filterTrips(trips).length === 0 && (
+          <div className="text-center py-12">
+            <p className="text-gray-400 text-lg">
+              No results found for "{searchQuery}"
+            </p>
+          </div>
+        )}
+    </div>
   );
 };

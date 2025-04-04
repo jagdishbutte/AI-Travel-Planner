@@ -9,6 +9,10 @@ import { CreateTrip } from "./CreateTrip";
 import ViewTrip from "./ViewTrip";
 import { TripBudget } from "./TripBudget";
 import { ThemeContext } from "../../context/ThemeContext";
+import { Destinations } from "../explore/Destinations";
+import { PopularTrips } from "../explore/PopularTrips";
+import { TravelGuides } from "../explore/TravelGuides";
+import { Footer } from "../../components/Footer";
 
 export const DashboardLayout = () => {
   const { theme } = useContext(ThemeContext);
@@ -27,7 +31,12 @@ export const DashboardLayout = () => {
       >
         <Routes>
           <Route index element={<Overview />} />
-          <Route path="explore" element={<Explore />} />
+          <Route path="explore">
+            <Route index element={<Explore />} />
+            <Route path="destinations" element={<Destinations />} />
+            <Route path="popular-trips" element={<PopularTrips />} />
+            <Route path="travel-guides" element={<TravelGuides />} />
+          </Route>
           <Route path="trips" element={<Trips />} />
           <Route path="settings" element={<Settings />} />
           <Route path="create-trip" element={<CreateTrip />} />
@@ -35,6 +44,7 @@ export const DashboardLayout = () => {
           <Route path="trips/:tripId/budget" element={<TripBudget />} />
         </Routes>
       </main>
+      <Footer />
     </div>
   );
 };

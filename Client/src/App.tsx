@@ -10,6 +10,10 @@ import { Hero } from "./components/Hero";
 import { LoadingSpinner } from "./components/common/LoadingSpinner";
 import { useAuthStore } from "./store/authStore";
 import { ThemeProvider } from "./context/ThemeContext";
+import { SearchProvider } from "./context/SearchContext";
+import { Destinations } from "./components/explore/Destinations";
+import { PopularTrips } from "./components/explore/PopularTrips";
+import { TravelGuides } from "./components/explore/TravelGuides";
 
 // Lazy load components
 const LoginForm = React.lazy(() => import("./components/auth/LoginForm"));
@@ -42,58 +46,70 @@ function App() {
 
   return (
     <ThemeProvider>
-      <Router>
-        <div className="min-h-screen bg-gray-900">
-          {!user && <Navbar />}
-          <main>
-            <Suspense fallback={<LoadingSpinner />}>
-              <Routes>
-                {/* Public routes */}
-                <Route path="/" element={<Hero />} />
-                <Route
-                  path="/login"
-                  element={
-                    user ? <Navigate to="/dashboard" replace /> : <LoginForm />
-                  }
-                />
-                <Route
-                  path="/register"
-                  element={
-                    user ? (
-                      <Navigate to="/preferences" replace />
-                    ) : (
-                      <RegistrationForm />
-                    )
-                  }
-                />
-                <Route
-                  path="/preferences"
-                  element={
-                    !user ? (
-                      <Navigate to="/login" replace />
-                    ) : hasCompletedOnboarding ? (
-                      <Navigate to="/dashboard" replace />
-                    ) : (
-                      <PreferencesSlider />
-                    )
-                  }
-                />
+      <SearchProvider>
+        <Router>
+          <div className="min-h-screen bg-gray-900">
+            <Navbar />
+            <main>
+              <Suspense fallback={<LoadingSpinner />}>
+                <Routes>
+                  {/* Public routes */}
+                  <Route path="/" element={<Hero />} />
+                  <Route
+                    path="/login"
+                    element={
+                      user ? (
+                        <Navigate to="/dashboard" replace />
+                      ) : (
+                        <LoginForm />
+                      )
+                    }
+                  />
+                  <Route
+                    path="/register"
+                    element={
+                      user ? (
+                        <Navigate to="/preferences" replace />
+                      ) : (
+                        <RegistrationForm />
+                      )
+                    }
+                  />
+                  <Route
+                    path="/preferences"
+                    element={
+                      !user ? (
+                        <Navigate to="/login" replace />
+                      ) : hasCompletedOnboarding ? (
+                        <Navigate to="/dashboard" replace />
+                      ) : (
+                        <PreferencesSlider />
+                      )
+                    }
+                  />
 
-                {/* Protected routes */}
-                <Route
-                  path="/dashboard/*"
-                  element={
-                    !user ? <Navigate to="/login" replace /> : <Dashboard />
-                  }
-                />
+                  {/* Protected routes */}
+                  <Route
+                    path="/dashboard/*"
+                    element={
+                      !user ? <Navigate to="/login" replace /> : <Dashboard />
+                    }
+                  >
+                    <Route path="explore">
+                      <Route path="destinations" element={<Destinations />} />
+                      <Route path="popular-trips" element={<PopularTrips />} />
+                      <Route path="travel-guides" element={<TravelGuides />} />
+                    </Route>
+                  </Route>
 
-                {/* Fallback route */}
-                <Route path="*" element={<Navigate to="/" replace />} />
-              </Routes>
-            </Suspense>
-          </main>
-        </div>
-      </Router>
+                  {/* Fallback route */}
+                  <Route path="*" element={<Navigate to="/" replace />} />
+                </Routes>
+              </Suspense>
+            </main>
+          </div>
+        </Router>
+      </SearchProvider>
     </ThemeProvider>
   );
 }
