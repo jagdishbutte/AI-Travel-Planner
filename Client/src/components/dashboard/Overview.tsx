@@ -241,20 +241,17 @@ export const Overview = () => {
     <>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-12">
         {/* Your Trips Section */}
-        <section>
-          <SectionTitle title="Your Trips" />
-          {trips.length > 0 ? (
+        {trips.length > 0 && (
+          <section>
+            <SectionTitle title="Your Trips" />
+
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {trips.map((trip) => (
                 <TripCard key={trip.id} trip={trip} />
               ))}
             </div>
-          ) : (
-            <div className="text-center py-12">
-              <p className="text-gray-400">You don't have any trips yet.</p>
-            </div>
-          )}
-        </section>
+          </section>
+        )}
 
         {/* For You Section */}
         <section>
