@@ -29,7 +29,6 @@ import {
 import { useParams, useNavigate } from "react-router-dom";
 import { useTripStore } from "../../store/tripStore";
 import { format } from "date-fns";
-import { Footer } from "../Footer";
 import { ThemeContext } from "../../context/ThemeContext";
 // import { LoadingSpinner } from "../common/LoadingSpinner";
 import { TimelineEvent as BaseTimelineEvent } from "../../store/tripStore";
@@ -521,9 +520,6 @@ export default function ViewTrip() {
         </div>
       </div>
 
-      <div className="">
-        <Footer />
-      </div>
 
       {/* Edit Modal */}
       <AnimatePresence>
