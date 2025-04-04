@@ -23,6 +23,8 @@ import {
   Copy,
   Check,
   ArrowLeft,
+  Users,
+  CalendarDays,
 } from "lucide-react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useTripStore } from "../../store/tripStore";
@@ -179,9 +181,9 @@ export default function ViewTrip() {
   };
 
   // Helper function to convert USD to INR (1 USD = ~83 INR)
-  const convertToRupees = (usd: number) => {
-    return Math.round(usd * 83);
-  };
+  // const convertToRupees = (usd: number) => {
+  //   return Math.round(usd * 83);
+  // };
 
   const handleBudgetClick = () => {
     navigate(`/dashboard/trips/${tripId}/budget`);
@@ -237,11 +239,18 @@ export default function ViewTrip() {
           </div>
           <div className="relative h-full flex flex-col justify-end p-8">
             <h1 className="text-4xl font-bold mb-2">{trip.title}</h1>
-            <div className="flex items-center space-x-4 text-lg">
+            <div className="flex items-center space-x-4 text-lg mb-2">
               <span className="flex items-center">
                 <MapPin className="h-5 w-5 mr-1" />
                 {trip.destination}
               </span>
+            </div>
+            <div className="flex items-center space-x-4 text-lg">
+              <span className="flex items-center">
+                <Users className="h-5 w-5 mr-1" /> 
+                {trip.travelers} Travelers</span>
+              <span className="flex items-center">
+                <CalendarDays className="h-5 w-5 mr-1" /> {trip.itinerary.length} days</span>
             </div>
           </div>
         </div>

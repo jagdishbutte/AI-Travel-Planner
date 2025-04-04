@@ -26,7 +26,7 @@ export interface Trip {
   transportationType: "bus" | "train" | "flight";
   status: "draft" | "planned" | "ongoing" | "completed";
   itinerary: DayPlan[];
-  weather: WeatherInfo[];
+  weather?: WeatherInfo[];
   accommodation: Accommodation[];
   image?: string;
 }

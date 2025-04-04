@@ -215,16 +215,6 @@ const sampleTrip: Trip = {
       ],
     },
   ],
-  weather: [
-    {
-      condition: "sunny",
-      temperature: 22,
-    },
-    {
-      condition: "cloudy",
-      temperature: 18,
-    },
-  ],
   accommodation: [
     {
       id: "hotel-1",
@@ -253,6 +243,33 @@ const sampleTrip: Trip = {
       }
     },
   ],
+  transportationDetails: {
+    type: "flight",
+    details: [
+      {
+        from: "New York",
+        to: "Paris",
+        departure: "2024-03-19T20:00:00Z",
+        arrival: "2024-03-20T08:00:00Z",
+        provider: "Air France",
+        price: 800,
+        duration: "8h",
+        stops: 1,
+        bookingReference: "AF12345",
+      },
+      {
+        from: "Paris",
+        to: "New York",
+        departure: "2024-03-26T10:00:00Z",
+        arrival: "2024-03-26T18:00:00Z",
+        provider: "Air France",
+        price: 800,
+        duration: "8h",
+        stops: 1,
+        bookingReference: "AF54321",
+      },
+    ],
+  },
   totalCost: {
     accommodation: 700,
     transportation: 500,

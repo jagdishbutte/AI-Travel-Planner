@@ -1,17 +1,13 @@
-import React from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useTripStore } from "../../store/tripStore";
 import {
   ArrowLeft,
-  DollarSign,
   Users,
   Calendar,
   Plane,
   Hotel,
   Coffee,
-  Bus,
   Ticket,
-  ShoppingBag,
   PiggyBank,
   CreditCard,
 } from "lucide-react";

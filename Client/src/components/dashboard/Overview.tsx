@@ -1,24 +1,12 @@
-import React from "react";
 import { motion } from "framer-motion";
 import {
   Calendar,
-  Map,
-  Plane,
   Users,
   Wallet,
   ArrowRight,
-  Facebook,
-  Twitter,
-  Instagram,
-  Linkedin,
-  Youtube,
-  Mail,
-  Phone,
-  MapPin,
-  Globe,
 } from "lucide-react";
 import { useTripStore } from "../../store/tripStore";
-import { useNavigate, Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { Trip } from "../../types";
 import { Footer } from "../../components/Footer";
 
@@ -116,7 +104,7 @@ const SectionTitle = ({ title }: { title: string }) => (
 
 export const Overview = () => {
   const { trips } = useTripStore();
-  const navigate = useNavigate();
+  // const navigate = useNavigate();
 
   // Example trips for different sections
   const forYouTrips: Trip[] = [
