@@ -5,7 +5,6 @@ import {
   Plane,
   Train,
   Bus,
-  Loader,
   MapPin,
   Calendar as CalendarIcon,
   Users,
@@ -20,7 +19,6 @@ import {
 import usePlacesAutocomplete from "use-places-autocomplete";
 import { useTripStore } from "../../store/tripStore";
 import { format, differenceInDays } from "date-fns";
-import { Footer } from "../Footer";
 import { tripAPI } from "../../lib/apiServices";
 
 type BudgetType = "per_person" | "total";
@@ -47,119 +45,6 @@ interface TransportOption {
   icon: typeof Plane | typeof Train | typeof Bus;
   label: string;
 }
-
-const generateItinerary = (days: number, destination: string) => {
-  const activities = [
-    {
-      morning: [
-        {
-          title: "Local Market Visit",
-          description: "Explore the vibrant local market",
-        },
-        {
-          title: "City Walking Tour",
-          description: "Guided tour of historical landmarks",
-        },
-        { title: "Museum Visit", description: "Explore cultural heritage" },
-      ],
-      afternoon: [
-        { title: "Food Tasting Tour", description: "Sample local delicacies" },
-        {
-          title: "Shopping District",
-          description: "Visit popular shopping areas",
-        },
-        { title: "Park Picnic", description: "Relax in scenic surroundings" },
-      ],
-      evening: [
-        {
-          title: "Sunset Viewpoint",
-          description: "Watch the sunset from a scenic spot",
-        },
-        {
-          title: "Local Theater Show",
-          description: "Experience local entertainment",
-        },
-        {
-          title: "Night Food Market",
-          description: "Explore street food scene",
-        },
-      ],
-    },
-  ];
-
-  const weatherConditions = ["sunny", "cloudy", "rainy"] as const;
-  const itinerary = [];
-
-  for (let i = 0; i < days; i++) {
-    const date = new Date();
-    date.setDate(date.getDate() + i);
-
-    const weather = {
-      condition:
-        weatherConditions[Math.floor(Math.random() * weatherConditions.length)],
-      temperature: Math.floor(Math.random() * (30 - 15) + 15), // Random temp between 15-30
-    };
-
-    const dayEvents = [
-      {
-        time: "09:00",
-        title: i === 0 ? "Hotel Check-in & Breakfast" : "Breakfast at Hotel",
-        description:
-          i === 0
-            ? "Check in and enjoy welcome breakfast"
-            : "Start your day with local breakfast",
-        type: "food" as const,
-      },
-      {
-        time: "10:30",
-        ...activities[0].morning[
-          Math.floor(Math.random() * activities[0].morning.length)
-        ],
-        type: "activity" as const,
-      },
-      {
-        time: "12:30",
-        title: "Local Restaurant",
-        description: "Authentic local cuisine for lunch",
-        type: "food" as const,
-      },
-      {
-        time: "14:00",
-        ...activities[0].afternoon[
-          Math.floor(Math.random() * activities[0].afternoon.length)
-        ],
-        type: "activity" as const,
-      },
-      {
-        time: "16:30",
-        title: "Cultural Activity",
-        description: "Immerse in local culture and traditions",
-        type: "activity" as const,
-      },
-      {
-        time: "19:00",
-        ...activities[0].evening[
-          Math.floor(Math.random() * activities[0].evening.length)
-        ],
-        type: "activity" as const,
-      },
-      {
-        time: "20:30",
-        title: "Dinner Experience",
-        description: "Evening dining at recommended restaurant",
-        type: "food" as const,
-      },
-    ];
-
-    itinerary.push({
-      date: date.toISOString().split("T")[0],
-      weather,
-      events: dayEvents,
-    });
-  }
-
-  return itinerary;
-};
 
 export const CreateTrip = () => {
   const navigate = useNavigate();
@@ -552,7 +437,7 @@ export const CreateTrip = () => {
                         ? format(formData.startDate, "yyyy-MM-dd")
                         : undefined
                     }
-                    className="w-full px-4 py-3 bg-gray-700/50 border border-gray-600 rounded-lg text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent [color-scheme:dark] rounded-lg"
+                    className="w-full px-4 py-3 bg-gray-700/50 border border-gray-600 text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent [color-scheme:dark] rounded-lg"
                   />
                 </div>
               </div>
@@ -706,9 +591,6 @@ export const CreateTrip = () => {
             </button>
           </form>
         </div>
-      </div>
-      <div>
-        <Footer />
       </div>
     </div>
   );
