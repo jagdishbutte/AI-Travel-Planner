@@ -1,9 +1,12 @@
-router.post("/generate-ai", async (req, res) => {
-  try {
-    const { location, days, travelers, budget } = req.body;
-    const tripPlan = await generateTripPlan(location, days, travelers, budget);
-    res.json(tripPlan);
-  } catch (error) {
-    res.status(500).json({ error: "Failed to generate trip plan" });
-  }
-});
+import express from "express";
+import {
+  deleteTrip,
+} from "../controllers/tripController";
+import { generateTripPlan } from "../controllers/genAIController";
+
+const router = express.Router();
+
+// Delete a trip
+router.delete("/:id", deleteTrip);
+
+export default router;

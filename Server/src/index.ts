@@ -6,6 +6,7 @@ import userRouter from "./routes/userRouter";
 import preferenceRouter from "./routes/preferencesRouter";
 import preferencesRoutes from "./routes/preferences";
 import genAIRouter from "./routes/genAIRouter";
+import tripRoutes from "./routes/tripRoutes";
 
 dotenv.config(); // Load .env variables
 
@@ -14,15 +15,22 @@ const PORT = process.env.PORT || 2300;
 
 // Middleware
 app.use(express.json());
-app.use(cors());
+app.use(
+  cors({
+    origin: true,
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    credentials: true,
+  })
+);
 
 // Connect to MongoDB
 connectDB();
 
 // Routes
 app.use("/users", userRouter, preferenceRouter);
-app.use("/preferences", preferencesRoutes); 
+app.use("/preferences", preferencesRoutes);
 app.use("/plan", genAIRouter);
+app.use("/trips", tripRoutes);
 app.get("/", (req, res) => {
   res.send("Hello World");
 });
