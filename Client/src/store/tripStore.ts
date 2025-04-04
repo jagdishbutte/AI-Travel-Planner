@@ -253,6 +253,13 @@ const sampleTrip: Trip = {
       }
     },
   ],
+  totalCost: {
+    accommodation: 700,
+    transportation: 500,
+    activities: 300,
+    food: 200,
+    total: 1700,
+  },
   image: "https://images.unsplash.com/photo-1502602898657-3e91760cbb34",
 };
 

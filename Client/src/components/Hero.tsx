@@ -42,7 +42,7 @@ export const Hero = () => {
             backgroundPosition: "center",
           }}
         >
-          <div className="absolute inset-0 bg-gradient-to-b from-gray-900/70 to-gray-900/50 backdrop-blur-sm" />
+          <div className="absolute inset-0 bg-gradient-to-b from-gray-900/70 to-gray-900/40 backdrop-blur-xs" />
         </div>
 
         <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-32">
@@ -55,7 +55,7 @@ export const Hero = () => {
             <h1 className="text-5xl md:text-6xl font-extrabold leading-tight mb-6 text-white">
               Your AI Travel Companion for Perfect Adventures
             </h1>
-            <p className="text-xl md:text-2xl mb-8 text-gray-300">
+            <p className="text-xl md:text-2xl mb-8 text-gray-100">
               Plan personalized trips with AI-powered recommendations tailored
               just for you.
             </p>

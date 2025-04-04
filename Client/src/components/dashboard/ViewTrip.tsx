@@ -22,6 +22,7 @@ import {
   MessageCircle,
   Copy,
   Check,
+  ArrowLeft,
 } from "lucide-react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useTripStore } from "../../store/tripStore";
@@ -46,21 +47,21 @@ interface WeatherInfo {
     | typeof Wind;
 }
 
-interface DayPlan {
-  date: string;
-  weather: WeatherInfo;
-  events: TimelineEvent[];
-}
+// interface DayPlan {
+//   date: string;
+//   weather: WeatherInfo;
+//   events: TimelineEvent[];
+// }
 
-interface HotelOption {
-  id: string;
-  name: string;
-  image: string;
-  rating: number;
-  price: number;
-  description: string;
-  amenities: string[];
-}
+// interface HotelOption {
+//   id: string;
+//   name: string;
+//   image: string;
+//   rating: number;
+//   price: number;
+//   description: string;
+//   amenities: string[];
+// }
 
 interface EditTripForm {
   startDate: string;
@@ -89,7 +90,7 @@ export default function ViewTrip() {
   );
   const updateTrip = useTripStore((state) => state.updateTrip);
   const [selectedDay, setSelectedDay] = useState(0);
-  const [isHotelListExpanded, setIsHotelListExpanded] = useState(false);
+  const [isHotelListExpanded] = useState(false);
   const [selectedHotel, setSelectedHotel] = useState<string | null>(null);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isShareModalOpen, setIsShareModalOpen] = useState(false);
@@ -168,7 +169,7 @@ export default function ViewTrip() {
     setIsEditing(false);
     setIsEditModalOpen(false);
     setIsSaved(true);
-    setTimeout(() => setIsSaved(false), 3000);
+    setTimeout(() => setIsSaved(false), 6000);
   };
 
   const handleCopyLink = async () => {
@@ -216,6 +217,15 @@ export default function ViewTrip() {
       }`}
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-8">
+        <div className="flex items-center justify-between mb-8">
+          <button
+            onClick={() => navigate(`/dashboard`)}
+            className="flex items-center text-gray-400 hover:text-white transition-colors"
+          >
+            <ArrowLeft className="h-5 w-5 mr-2" />
+            Back to Home
+          </button>
+        </div>
         <div className="relative h-64 rounded-xl overflow-hidden mb-8">
           <div
             className="absolute inset-0 bg-cover bg-center"
@@ -223,7 +233,7 @@ export default function ViewTrip() {
               backgroundImage: `url(${trip.image})`,
             }}
           >
-            <div className="absolute inset-0 bg-gray-900/50 backdrop-blur-[2px]" />
+            <div className="absolute inset-0 bg-gray-900/50 backdrop-blur-xs" />
           </div>
           <div className="relative h-full flex flex-col justify-end p-8">
             <h1 className="text-4xl font-bold mb-2">{trip.title}</h1>
@@ -253,7 +263,7 @@ export default function ViewTrip() {
                   <p className="text-gray-400 text-sm">Budget</p>
                   <p className="text-xl font-semibold">
                     ₹{trip.totalCost.total}
-                    <span className="text-sm text-gray-400">
+                    <span className="text-sm text-gray-400 block sm:inline">
                       /{trip.budget.type === "per_person" ? "person" : "total"}
                     </span>
                   </p>
@@ -430,8 +440,8 @@ export default function ViewTrip() {
                           alt={hotel.name}
                           className="w-full h-full object-cover"
                         />
-                        <div className="absolute top-4 right-4 bg-white/90 rounded-full px-2 py-1 flex items-center">
-                          <Star className="h-4 w-4 text-yellow-500 mr-1" />
+                        <div className="absolute top-4 right-4 bg-gray-800 rounded-full px-2 py-1 flex items-center">
+                          <Star className="h-4 w-4 text-yellow-400 mr-1" />
                           <span className="text-sm">{hotel.rating}</span>
                         </div>
                       </div>
@@ -476,21 +486,21 @@ export default function ViewTrip() {
           <div className="flex gap-4 rounded-lg">
             <button
               onClick={() => setIsEditModalOpen(true)}
-              className="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 rounded-md transition-colors"
+              className="flex items-center gap-2 px-3 py-2 sm:px-4 sm:py-2 bg-blue-600 hover:bg-blue-700 rounded-md transition-colors"
             >
               <Edit3 className="h-5 w-5" />
               Edit Trip
             </button>
             <button
               onClick={() => setIsShareModalOpen(true)}
-              className="flex items-center gap-2 px-4 py-2 bg-green-600 hover:bg-green-700 rounded-md transition-colors"
+              className="flex items-center gap-2 px-3 py-2 sm:px-4 sm:py-2 bg-green-600 hover:bg-green-700 rounded-md transition-colors"
             >
               <Share2 className="h-5 w-5" />
               Share
             </button>
             <button
               onClick={() => setIsSaved(!isSaved)}
-              className="flex items-center gap-2 px-4 py-2 bg-purple-600 hover:bg-purple-700 rounded-md transition-colors"
+              className="flex items-center gap-2 px-3 py-2 sm:px-4 sm:py-2 bg-purple-600 hover:bg-purple-700 rounded-md transition-colors"
             >
               <Bookmark className="h-5 w-5" />
               Save Trip
@@ -499,7 +509,7 @@ export default function ViewTrip() {
         </div>
       </div>
 
-      <div className="mt-8">
+      <div className="">
         <Footer />
       </div>
 
