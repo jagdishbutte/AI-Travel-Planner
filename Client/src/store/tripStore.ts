@@ -1,5 +1,7 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
+import { tripsAPI } from "../lib/apis";
+import { useAuthStore } from "../store/authStore";
 
 export interface WeatherInfo {
   condition: "sunny" | "cloudy" | "rainy" | "snowy" | "windy";
@@ -119,28 +121,69 @@ export interface Trip {
   _id?: string; // MongoDB ID
 }
 
+// const userId = useAuthStore.getState().user?.id;
+
+// const fetchTrips = async (userId: string) => {
+//   try {
+//     const res = await tripsAPI.getAllTrips(userId);
+//     const trips = res.data.data; // Assuming response structure is { data: { success: true, data: [Trip] } }
+//     set({ trips });
+//   } catch (error) {
+//     console.error("Error fetching trips:", error);
+//   }
+// },
+
+
 interface TripState {
   trips: Trip[];
   addTrip: (trip: Trip) => void;
   updateTrip: (id: string, trip: Partial<Trip>) => void;
   deleteTrip: (id: string) => void;
+  fetchTrips: () => void;
 }
+
 
 export const useTripStore = create<TripState>()(
   persist(
     (set) => ({
-      trips: [], // Initialize with empty array instead of sample trip
-      addTrip: (trip) => set((state) => ({ trips: [...state.trips, trip] })),
-      updateTrip: (id, updatedTrip) =>
-        set((state) => ({
-          trips: state.trips.map((trip) =>
+      trips: [], 
+      addTrip: (trip: Trip) => set((state: any) => ({ trips: [...state.trips, trip] })),
+      updateTrip: (id: string, updatedTrip: any) =>
+        set((state: any) => ({
+          trips: state.trips.map((trip: Trip) =>
             trip.id === id ? { ...trip, ...updatedTrip } : trip
           ),
         })),
-      deleteTrip: (id) =>
-        set((state) => ({
-          trips: state.trips.filter((trip) => trip.id !== id),
+      deleteTrip: (id: string) =>
+        set((state: any) => ({
+          trips: state.trips.filter((trip: Trip) => trip.id !== id),
         })),
+        fetchTrips: async () => {
+          const userId = useAuthStore.getState().user?.id;
+          if (!userId) return;
+
+          try {
+            const res: any = await tripsAPI.getAllTrips(userId);
+            console.log(res, "res");
+            const trips = res.data?.map((trip: any) => ({
+                ...trip,
+                transportationDetails: trip.transportationDetails || {
+                    type: "flight",
+                    details: [],
+                },
+                totalCost: trip.totalCost || {
+                    accommodation: 0,
+                    transportation: 0,
+                    activities: 0,
+                    food: 0,
+                    total: 0,
+                },
+            })); 
+            set({ trips });
+          } catch (error) {
+            console.error("Error fetching trips:", error);
+          }
+        }
     }),
     {
       name: "trip-storage",

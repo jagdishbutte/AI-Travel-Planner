@@ -81,7 +81,7 @@ const TripCard = ({ trip, showBookNow = false, onDelete }: TripCardProps) => {
     const isPerPerson = trip.budget.type === "per_person";
     const isPerDay = trip.budget.duration === "per_day";
 
-    return `₹${amount.toLocaleString("en-IN")} ${
+    return `₹${amount} ${
       isPerPerson ? "per person" : "total"
     }${isPerDay ? " per day" : ""}`;
   };

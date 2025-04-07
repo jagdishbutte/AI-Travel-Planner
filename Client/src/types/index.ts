@@ -1,6 +1,7 @@
 export interface User {
   id: string;
   email: string;
+  token: string;
   location?: string;
   preferences?: UserPreferences;
 }

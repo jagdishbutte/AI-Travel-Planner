@@ -3,6 +3,7 @@ import { Calendar, Users, Wallet, ArrowRight } from "lucide-react";
 import { useTripStore } from "../../store/tripStore";
 import { useNavigate } from "react-router-dom";
 import { Trip } from "../../types";
+import { useEffect } from "react";
 
 interface TripCardProps {
   trip: Trip;
@@ -13,11 +14,14 @@ const TripCard = ({ trip, showBookNow = false }: TripCardProps) => {
   const navigate = useNavigate();
 
   const getBudgetDisplay = () => {
-    const amount = trip.budget.amount;
+    const budget =
+        typeof trip.budget === "string" ? JSON.parse(trip.budget) : trip.budget;
+
+    const amount = budget.amount;
     const isPerPerson = trip.budget.type === "per_person";
     const isPerDay = trip.budget.duration === "per_day";
 
-    return `₹${amount.toLocaleString("en-IN")} ${
+    return `₹${amount} ${
       isPerPerson ? "per person" : "total"
     }${isPerDay ? " per day" : ""}`;
   };
@@ -237,6 +241,12 @@ export const Overview = () => {
     },
   ];
 
+  const { fetchTrips } = useTripStore();
+
+  useEffect(() => {
+      fetchTrips(); 
+  }, []);
+
   return (
     <>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-12">
@@ -247,7 +257,7 @@ export const Overview = () => {
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {trips.map((trip) => (
-                <TripCard key={trip.id} trip={trip} />
+                <TripCard key={trip._id} trip={trip} />
               ))}
             </div>
           </section>

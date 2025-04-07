@@ -84,11 +84,11 @@ export const preferences = {
 };
 
 export const trips = {
-  CREATE: `${VITE_API_BASE_URL}/api/trips/create`,
-  GET_ALL: `${VITE_API_BASE_URL}/api/trips/all`,
-  GET_ONE: (id: string) => `${VITE_API_BASE_URL}/trips/${id}`,
-  UPDATE: (id: string) => `${VITE_API_BASE_URL}/trips/${id}`,
-  DELETE: (id: string) => `${VITE_API_BASE_URL}/trips/${id}`,
+    CREATE: `${VITE_API_BASE_URL}/api/trips/create`,
+    GET_TRIPS: `${VITE_API_BASE_URL}/trips/fetchTrips`,
+    GET_ONE: `${VITE_API_BASE_URL}/trips/getTrip`,
+    UPDATE: `${VITE_API_BASE_URL}/trips/updateTrip`,
+    DELETE: `${VITE_API_BASE_URL}/trips/deleteTrip`,
 };
 
 // API Services
@@ -121,30 +121,60 @@ export const preferencesAPI = {
 };
 
 export const tripsAPI = {
-  createTrip: async (
-    data: TripRequest
-  ): Promise<AxiosResponse<ApiResponse<Trip>>> => {
-    return apiConnector("POST", trips.CREATE, data, null, null, null);
-  },
+    createTrip: async (
+        data: TripRequest
+    ): Promise<AxiosResponse<ApiResponse<Trip>>> => {
+        return apiConnector("POST", trips.CREATE, data, null, null, null);
+    },
 
-  getAllTrips: async (
-    userId: string
-  ): Promise<AxiosResponse<ApiResponse<Trip[]>>> => {
-    return apiConnector("GET", trips.GET_ALL, null, null, { userId }, null);
-  },
+    getAllTrips: async (
+        userId: string
+    ): Promise<AxiosResponse<ApiResponse<Trip[]>>> => {
+        return apiConnector(
+            "GET",
+            trips.GET_TRIPS,
+            null,
+            null,
+            { userId },
+            null
+        );
+    },
 
-  getTrip: async (id: string): Promise<AxiosResponse<ApiResponse<Trip>>> => {
-    return apiConnector("GET", trips.GET_ONE(id), null, null, null, null);
-  },
+    getTrip: async (tripId : string): Promise<AxiosResponse<ApiResponse<Trip>>> => {
+        return apiConnector(
+            "GET",
+            trips.GET_ONE,
+            null,
+            null,
+            { tripId },
+            null
+        );
+    },
 
-  updateTrip: async (
-    id: string,
-    data: Partial<Trip>
-  ): Promise<AxiosResponse<ApiResponse<Trip>>> => {
-    return apiConnector("PUT", trips.UPDATE(id), data, null, null, null);
-  },
+    updateTrip: async (
+        tripId: string,
+        data: Partial<Trip>
+    ): Promise<AxiosResponse<ApiResponse<Trip>>> => {
+        return apiConnector(
+            "PUT",
+            trips.UPDATE,
+            data,
+            null,
+            { tripId },
+            null
+        );
+    },
 
-  deleteTrip: async (id: string): Promise<AxiosResponse<ApiResponse<void>>> => {
-    return apiConnector("DELETE", trips.DELETE(id), null, null, null, null);
-  },
+    deleteTrip: async (
+        tripId: string
+    ): Promise<AxiosResponse<ApiResponse<void>>> => {
+        return apiConnector(
+            "DELETE",
+            trips.DELETE,
+            null,
+            null,
+            { tripId },
+            null
+        );
+    },
 };
