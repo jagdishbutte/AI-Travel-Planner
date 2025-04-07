@@ -1,13 +1,55 @@
 import { Request, Response } from "express";
 import { RequestHandler } from "express";
 import Trip from "../models/trip";
-import mongoose from "mongoose";
+import mongoose, { Types } from "mongoose";
+
+export const getTrip : RequestHandler = async (req, res): Promise<void> => {
+  try {
+      const userId = req.query.userId;
+      if (!userId) {
+        res.status(400).json({ error: "userId is required" });
+        return;
+      }
+
+      const trips = await Trip.find({ user: new Types.ObjectId(userId as string) }).sort({ createdAt: -1 });
+
+      res.json(trips);
+  } catch (error) {
+      console.error("Error fetching trips:", error);
+      res.status(500).json({ error: "Failed to fetch trips" });
+  }
+}
+
+export const saveTrip: RequestHandler = async (req, res): Promise<void> => {
+    try {
+        const { userId, tripData } = req.body;
+        if (!userId || !tripData) {
+            res.status(400).json({
+                success: false,
+                message: "userId and tripData are required",
+            });
+            return;
+        }
+        const trip = new Trip({
+            ...tripData,
+            user: new mongoose.Types.ObjectId(userId),
+        });
+        await trip.save();
+        res.status(201).json({
+            success: true,
+            message: "Trip saved successfully",
+            trip,
+        });
+    } catch (error) {
+        console.error("Error saving trip:", error);
+        res.status(500).json({ error: "Failed to save trip" });
+    }
+};
 
 export const deleteTrip: RequestHandler = async (req, res): Promise<void> => {
   try {
-    const { id } = req.params;
+    const id = req.query.tripId as string;
 
-    // Validate ObjectId
     if (!mongoose.Types.ObjectId.isValid(id)) {
       res.status(400).json({
         success: false,

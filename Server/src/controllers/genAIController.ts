@@ -71,6 +71,7 @@ export const generateTripPlan = async (
         const result = await model.generateContent(prompt);
         const response = result.response;
         const content = response.text();
+        console.log("Gemini response:", content);
 
         if (!content) {
             throw new Error("No content received from Gemini.");
@@ -114,13 +115,6 @@ export const generateTripPlan = async (
 
         return {
             ...tripPlan,
-            totalCost: tripPlan.totalCost || {
-                accommodation: 0,
-                transportation: 0,
-                activities: 0,
-                food: 0,
-                total: 0,
-            },
             image: imageUrl || ""
         };
     } catch (error) {

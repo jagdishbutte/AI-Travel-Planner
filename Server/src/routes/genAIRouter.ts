@@ -8,10 +8,10 @@ const router = express.Router();
 router.post("/generate", async (req, res) => {
   try {
     const tripPlan = await generateTripPlan(req.body);
-    // console.log("BODY:", req.body);
+    console.log("BODY:", req.body);
     const trip = new Trip({
       user: req.body.userId, 
-      location: tripPlan.destination,
+      destination: tripPlan.destination,
       days: req.body.days,
       travelers: tripPlan.travelers,
       budget: JSON.stringify(tripPlan.budget),
@@ -33,6 +33,19 @@ router.post("/generate", async (req, res) => {
         ),
         budget_breakdown: tripPlan.totalCost,
       },
+      transportationType: req.body.transportationType,
+      image: tripPlan.image,
+      status: "planned",
+      startDate: req.body.startDate,
+      endDate: req.body.endDate,
+      weather: tripPlan.weather,
+      accommodation: tripPlan.accommodation.map((hotel) => ({
+        name: hotel.name,
+        image: hotel.image,     
+        price: hotel.price,
+        rating: hotel.rating,
+        description: hotel.description,
+        })),
     });
 
     await trip.save();
