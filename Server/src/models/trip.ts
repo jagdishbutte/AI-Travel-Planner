@@ -55,53 +55,90 @@ const TripSchema: Schema = new Schema(
             default: {},
         },
 
-        itinerary: {
-            summary: {
-                type: String,
-                required: true,
-            },
-
-            daily_itinerary: [
-                {
-                    day: {
-                        type: Number,
-                        required: true,
-                    },
-                    activities: [
-                        {
+        itinerary: [
+            {
+                date: {
+                    type: String,
+                    required: true,
+                },
+                events: [
+                    {
+                        time: {
                             type: String,
                             required: true,
                         },
-                    ],
+                        title: {
+                            type: String,
+                            required: true,
+                        },
+                        description: {
+                            type: String,
+                            required: true,
+                        },
+                        type: {
+                            type: String,
+                            enum: [
+                                "activity",
+                                "transport",
+                                "food",
+                                "accommodation",
+                            ],
+                            required: true,
+                        },
+                        location: {
+                            name: {
+                                type: String,
+                                required: false,
+                            },
+                            coordinates: {
+                                type: [Number], // [longitude, latitude]
+                                required: false,
+                            },
+                            address: {
+                                type: String,
+                                required: false,
+                            },
+                        },
+                        cost: {
+                            type: Number,
+                            required: false,
+                        },
+                        duration: {
+                            type: String,
+                            required: false,
+                        },
+                        bookingRequired: {
+                            type: Boolean,
+                            required: false,
+                        },
+                        bookingUrl: {
+                            type: String,
+                            required: false,
+                        },
+                    },
+                ],
+                weather: {
+                    condition: {
+                        type: String,
+                        enum: ["sunny", "cloudy", "rainy", "snowy", "windy"],
+                        required: true,
+                    },
+                    temperature: {
+                        type: Number,
+                        required: true,
+                    },
+                    humidity: {
+                        type: Number,
+                        required: false,
+                    },
+                    precipitation: {
+                        type: Number,
+                        required: false,
+                    },
                 },
-            ],
-
-            accommodation: [
-                {
-                    type: String,
-                    required: true,
-                },
-            ],
-
-            transportation: [
-                {
-                    type: String,
-                    required: true,
-                },
-            ],
-
-            food_recommendations: [
-                {
-                    type: String,
-                    required: true,
-                },
-            ],
-
-            budget_breakdown: {
-                type: Object,
-                required: true,
             },
-        },
+        ],
+
         transportationType: {
             type: String,
             enum: ["flight", "train", "bus"],
@@ -151,6 +188,68 @@ const TripSchema: Schema = new Schema(
                 description: {
                     type: String,
                     required: true,
+                },
+                amenities: [
+                    {
+                        type: String,
+                        required: false,
+                    },
+                ],
+                location: {
+                    name: {
+                        type: String,
+                        required: false,
+                    },
+                    coordinates: {
+                        type: [Number], // [latitude, longitude]
+                        required: false,
+                    },
+                    address: {
+                        type: String,
+                        required: false,
+                    },
+                },
+                roomTypes: [
+                    {
+                        type: {
+                            type: String,
+                            required: true,
+                        },
+                        price: {
+                            type: Number,
+                            required: true,
+                        },
+                        capacity: {
+                            type: Number,
+                            required: true,
+                        },
+                        available: {
+                            type: Boolean,
+                            required: true,
+                        },
+                    },
+                ],
+                contactInfo: {
+                    phone: {
+                        type: String,
+                        required: false,
+                    },
+                    email: {
+                        type: String,
+                        required: false,
+                    },
+                    website: {
+                        type: String,
+                        required: false,
+                    },
+                },
+                bookingRequired: {
+                    type: Boolean,
+                    default: false,
+                },
+                bookingUrl: {
+                    type: String,
+                    required: false,
                 },
             },
         ],

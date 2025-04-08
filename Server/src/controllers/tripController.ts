@@ -3,7 +3,7 @@ import { RequestHandler } from "express";
 import Trip from "../models/trip";
 import mongoose, { Types } from "mongoose";
 
-export const getTrip : RequestHandler = async (req, res): Promise<void> => {
+export const getUserTrips : RequestHandler = async (req, res): Promise<void> => {
   try {
       const userId = req.query.userId;
       if (!userId) {
@@ -19,6 +19,26 @@ export const getTrip : RequestHandler = async (req, res): Promise<void> => {
       res.status(500).json({ error: "Failed to fetch trips" });
   }
 }
+
+export const getTrip: RequestHandler = async (req, res): Promise<void> => {
+    try {
+        const tripId = req.query.tripId as string;
+        if (!tripId) {
+            res.status(400).json({ error: "tripId is required" });
+            return;
+        } else {      
+          const trip = await Trip.findById(tripId);
+          if (!trip) {
+            res.status(404).json({ error: "Trip not found" });
+            return;
+          }
+          res.json(trip);
+        }
+    } catch (error) {
+        console.error("Error fetching trip:", error);
+        res.status(500).json({ error: "Failed to fetch trip" });
+    }
+};
 
 export const saveTrip: RequestHandler = async (req, res): Promise<void> => {
     try {
