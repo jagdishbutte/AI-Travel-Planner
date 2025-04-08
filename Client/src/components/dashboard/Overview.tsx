@@ -67,7 +67,7 @@ const TripCard = ({ trip, showBookNow = false }: TripCardProps) => {
         </div>
         <div className="flex items-center justify-between">
           <button
-            onClick={() => navigate(`/dashboard/trips/${trip.id}`)}
+            onClick={() => navigate(`/dashboard/trips/${trip._id}`)}
             className="text-blue-400 hover:text-blue-300 text-sm font-medium flex items-center"
           >
             View Itinerary

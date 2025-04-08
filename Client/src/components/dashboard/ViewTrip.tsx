@@ -32,6 +32,8 @@ import { format } from "date-fns";
 import { ThemeContext } from "../../context/ThemeContext";
 // import { LoadingSpinner } from "../common/LoadingSpinner";
 import { TimelineEvent as BaseTimelineEvent } from "../../store/tripStore";
+import { Trip } from "../../types";
+import { tripsAPI } from "../../lib/apis";
 
 interface TimelineEvent extends BaseTimelineEvent {
   icon: typeof Camera | typeof Bus | typeof Coffee | typeof Hotel;
@@ -86,10 +88,10 @@ interface EditTripForm {
 
 export default function ViewTrip() {
   const { tripId } = useParams();
-  const trip = useTripStore((state) =>
-    state.trips.find((t) => t.id === tripId)
+  const storeTrip = useTripStore((state) =>
+      state.trips.find((t) => t.id === tripId)
   );
-  const updateTrip = useTripStore((state) => state.updateTrip);
+  // const updateTrip = useTripStore((state) => state.updateTrip);
   const [selectedDay, setSelectedDay] = useState(0);
   const [isHotelListExpanded] = useState(false);
   const [selectedHotel, setSelectedHotel] = useState<string | null>(null);
@@ -99,6 +101,8 @@ export default function ViewTrip() {
   // const [editPrompt, setEditPrompt] = useState("");
   const [isSaved, setIsSaved] = useState(false);
   const [isLinkCopied, setIsLinkCopied] = useState(false);
+  const [trip, setTrip] = useState<Trip | null>(null);
+  const [loading, setLoading] = useState(true);
   const [editForm, setEditForm] = useState<EditTripForm>({
     startDate: trip?.startDate
       ? format(new Date(trip.startDate), "yyyy-MM-dd")
@@ -116,6 +120,37 @@ export default function ViewTrip() {
   });
   const navigate = useNavigate();
   const { theme } = useContext(ThemeContext);
+
+  useEffect(() => {
+      const fetchTrip = async () => {
+          try {
+              if (storeTrip) {
+                  setTrip(storeTrip);
+                  setLoading(false);
+                  return;
+              } // No need to fetch if already in store
+
+              if (tripId) {
+                  const response = await tripsAPI.getTrip(tripId);
+                  console.log(response);
+                  if (response) {
+                      setTrip(response as Trip);
+                  } else {
+                      console.error("Invalid or missing trip data");
+                  }
+              }
+          } catch (error) {
+              console.error("Failed to fetch trip:", error);
+          } finally {
+              setLoading(false);
+          }
+      };
+
+      fetchTrip();
+  }, [tripId, storeTrip]);
+  console.log(trip, "trip");
+  console.log(trip?.itinerary, "itinerary");
+  if (loading) return <div className="text-white">Loading trip...</div>;
 
   if (!trip) {
     return (
@@ -159,14 +194,14 @@ export default function ViewTrip() {
     setIsEditing(true);
     // Simulate API call delay
     await new Promise((resolve) => setTimeout(resolve, 2000));
-    updateTrip(tripId!, {
-      ...trip,
-      startDate: editForm.startDate,
-      endDate: editForm.endDate,
-      budget: editForm.budget,
-      travelers: editForm.numberOfPersons,
-      transportationType: editForm.transportationType,
-    });
+    // updateTrip(tripId!, {
+    //   ...trip,
+    //   startDate: editForm.startDate,
+    //   endDate: editForm.endDate,
+    //   budget: editForm.budget,
+    //   travelers: editForm.numberOfPersons,
+    //   transportationType: editForm.transportationType,
+    // });
     setIsEditing(false);
     setIsEditModalOpen(false);
     setIsSaved(true);
@@ -204,13 +239,13 @@ export default function ViewTrip() {
   //   };
   // }, [isCalendarOpen]);
 
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setIsSaved(false);
-    }, 1000);
+  // useEffect(() => {
+  //   const timer = setTimeout(() => {
+  //     setIsSaved(false);
+  //   }, 1000);
 
-    return () => clearTimeout(timer);
-  }, [isSaved]);
+  //   return () => clearTimeout(timer);
+  // }, [isSaved]);
   return (
     <div
       className={`min-h-screen mt-12 ${
@@ -273,7 +308,7 @@ export default function ViewTrip() {
                 >
                   <p className="text-gray-400 text-sm">Budget</p>
                   <p className="text-xl font-semibold">
-                    ₹{trip.totalCost.total}
+                    ₹{trip.totalCost?.total}
                     <span className="text-sm text-gray-400 block sm:inline">
                       /{trip.budget.type === "per_person" ? "person" : "total"}
                     </span>

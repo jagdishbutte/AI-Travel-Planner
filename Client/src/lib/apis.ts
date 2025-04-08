@@ -140,8 +140,8 @@ export const tripsAPI = {
         );
     },
 
-    getTrip: async (tripId : string): Promise<AxiosResponse<ApiResponse<Trip>>> => {
-        return apiConnector(
+    getTrip: async (tripId: string): Promise<Trip> => {
+        const response = await apiConnector(
             "GET",
             trips.GET_ONE,
             null,
@@ -149,6 +149,7 @@ export const tripsAPI = {
             { tripId },
             null
         );
+        return response.data as Trip;
     },
 
     updateTrip: async (
