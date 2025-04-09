@@ -8,9 +8,10 @@ const router = express.Router();
 router.post("/generate", async (req, res) => {
   try {
     const tripPlan = await generateTripPlan(req.body);
-    console.log("BODY:", req.body);
+    // console.log("BODY:", req.body);
     const trip = new Trip({
         user: req.body.userId,
+        title: tripPlan.title,
         destination: tripPlan.destination,
         days: req.body.days,
         travelers: tripPlan.travelers,
@@ -76,6 +77,13 @@ router.post("/generate", async (req, res) => {
             bookingRequired: false, // or set to true if you have that info
             bookingUrl: hotel.contactInfo?.website || "",
         })),
+        totalCost: {
+            accommodation: tripPlan.totalCost.accommodation,
+            activities: tripPlan.totalCost.activities,
+            transportation: tripPlan.totalCost.transportation,
+            food: tripPlan.totalCost.food,
+            total: tripPlan.totalCost.total,
+        },
     });
 
     await trip.save();

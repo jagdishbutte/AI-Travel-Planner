@@ -30,6 +30,11 @@ const TripSchema: Schema = new Schema(
             required: true,
         },
 
+        title: {
+            type: String,
+            required: true,
+        },
+
         destination: {
             type: String,
             required: true,
@@ -253,7 +258,30 @@ const TripSchema: Schema = new Schema(
                 },
             },
         ],
+        totalCost: {
+            accommodation: {
+                type: Number,
+                required: true,
+            },
+            transportation: {
+                type: Number,
+                required: true,
+            },
+            activities: {
+                type: Number,
+                required: true,
+            },
+            food: {
+                type: Number,
+                required: true,
+            },
+            total: {
+                type: Number,
+                required: true,
+            },
+        },
     },
+
     { timestamps: true }
 );
 
