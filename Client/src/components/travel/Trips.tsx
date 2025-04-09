@@ -75,15 +75,21 @@ const TripCard = ({ trip, showBookNow = false, onDelete }: TripCardProps) => {
   const navigate = useNavigate();
   const [isDeleting, setIsDeleting] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const {fetchTrips}=useTripStore();
 
   const getBudgetDisplay = () => {
-    const amount = trip.budget.amount;
-    const isPerPerson = trip.budget.type === "per_person";
-    const isPerDay = trip.budget.duration === "per_day";
+      const budget =
+          typeof trip.budget === "string"
+              ? JSON.parse(trip.budget)
+              : trip.budget;
 
-    return `₹${amount} ${
-      isPerPerson ? "per person" : "total"
-    }${isPerDay ? " per day" : ""}`;
+      const amount = budget.amount;
+      const isPerPerson = trip.budget.type === "per_person";
+      const isPerDay = trip.budget.duration === "per_day";
+
+      return `₹${amount} ${isPerPerson ? "per person" : "total"}${
+          isPerDay ? " per day" : ""
+      }`;
   };
 
   const handleDelete = async () => {
@@ -93,8 +99,11 @@ const TripCard = ({ trip, showBookNow = false, onDelete }: TripCardProps) => {
 
       if (response.data.success) {
         toast.success(response.data.message || "Trip deleted successfully");
-        onDelete(trip._id || trip.id);
+        onDelete(trip._id as string);
+        fetchTrips();
+        // deleteTrip(trip._id as string);
         setShowDeleteModal(false);
+
       } else {
         throw new Error(response.data.message || "Failed to delete trip");
       }
@@ -215,7 +224,7 @@ export const Trips = () => {
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {trips.map((trip) => (
                   <TripCard
-                    key={trip._id || trip.id}
+                    key={trip._id}
                     trip={trip}
                     onDelete={handleDeleteTrip}
                   />

@@ -140,53 +140,66 @@ interface TripState {
   updateTrip: (id: string, trip: Partial<Trip>) => void;
   deleteTrip: (id: string) => void;
   fetchTrips: () => void;
+  resetTrips: () => void;
 }
 
 
 export const useTripStore = create<TripState>()(
-  persist(
-    (set) => ({
-      trips: [], 
-      addTrip: (trip: Trip) => set((state: any) => ({ trips: [...state.trips, trip] })),
-      updateTrip: (id: string, updatedTrip: any) =>
-        set((state: any) => ({
-          trips: state.trips.map((trip: Trip) =>
-            trip.id === id ? { ...trip, ...updatedTrip } : trip
-          ),
-        })),
-      deleteTrip: (id: string) =>
-        set((state: any) => ({
-          trips: state.trips.filter((trip: Trip) => trip.id !== id),
-        })),
-        fetchTrips: async () => {
-          const userId = useAuthStore.getState().user?.id;
-          if (!userId) return;
+    persist(
+        (set) => ({
+            trips: [],
+            addTrip: (trip: Trip) =>
+                set((state: any) => ({ trips: [...state.trips, trip] })),
+            updateTrip: (id: string, updatedTrip: any) =>
+                set((state: any) => ({
+                    trips: state.trips.map((trip: Trip) =>
+                        trip.id === id ? { ...trip, ...updatedTrip } : trip
+                    ),
+                })),
+            deleteTrip: async (id: string) => {
+                try {
+                    await tripsAPI.deleteTrip(id); // your actual API call to delete
+                    set((state: any) => {
+                        const updatedTrips = state.trips.filter(
+                            (trip: Trip) => trip.id !== id
+                        );
+                        return { trips: updatedTrips };
+                    });
+                } catch (error) {
+                    console.error("Failed to delete trip:", error);
+                }
+            },
 
-          try {
-            const res: any = await tripsAPI.getAllTrips(userId);
-            console.log(res, "res");
-            const trips = res.data?.map((trip: any) => ({
-                ...trip,
-                transportationDetails: trip.transportationDetails || {
-                    type: "flight",
-                    details: [],
-                },
-                totalCost: trip.totalCost || {
-                    accommodation: 0,
-                    transportation: 0,
-                    activities: 0,
-                    food: 0,
-                    total: 0,
-                },
-            })); 
-            set({ trips });
-          } catch (error) {
-            console.error("Error fetching trips:", error);
-          }
+            fetchTrips: async () => {
+                const userId = useAuthStore.getState().user?.id;
+                if (!userId) return;
+
+                try {
+                    const res: any = await tripsAPI.getAllTrips(userId);
+                    console.log(res, "res");
+                    const trips = res.data?.map((trip: any) => ({
+                        ...trip,
+                        transportationDetails: trip.transportationDetails || {
+                            type: "flight",
+                            details: [],
+                        },
+                        totalCost: trip.totalCost || {
+                            accommodation: 0,
+                            transportation: 0,
+                            activities: 0,
+                            food: 0,
+                            total: 0,
+                        },
+                    }));
+                    set({ trips });
+                } catch (error) {
+                    console.error("Error fetching trips:", error);
+                }
+            },
+            resetTrips: () => set({ trips: [] }),
+        }),
+        {
+            name: "trip-storage",
         }
-    }),
-    {
-      name: "trip-storage",
-    }
-  )
+    )
 );
