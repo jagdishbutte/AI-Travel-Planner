@@ -44,7 +44,7 @@ export const DashboardNavbar = () => {
 
   const notificationsRef = useRef<HTMLDivElement>(null);
   const profileRef = useRef<HTMLDivElement>(null);
-
+  const userLoggedIn = useAuthStore((state) => state.user);
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (
@@ -279,50 +279,6 @@ export const DashboardNavbar = () => {
 
           {/* Right side controls */}
           <div className="flex items-center space-x-4">
-            {/* Notifications */}
-            {/* <div className="relative" ref={notificationsRef}>
-              <button
-                onClick={() => {
-                  setIsNotificationsOpen(!isNotificationsOpen);
-                  setActiveDropdown(null);
-                }}
-                className="relative p-2 text-gray-300 hover:text-white transition-colors rounded-lg hover:bg-gray-800/50"
-              >
-                <Bell className="h-5 w-5" />
-                <span className="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full"></span>
-              </button>
-
-              {isNotificationsOpen && (
-                <div className="absolute md:right-0 mt-2 w-60 md:w-80 rounded-lg shadow-lg bg-gray-800 ring-1 ring-black ring-opacity-5">
-                  <div className="p-4">
-                    <h3 className="text-white font-medium mb-4">
-                      Notifications
-                    </h3>
-                    <div className="space-y-4">
-                      {notifications.map((notification) => (
-                        <div
-                          key={notification.id}
-                          className="flex items-start space-x-3 p-3 hover:bg-gray-700/50 rounded-lg transition-colors cursor-pointer"
-                        >
-                          <div className="flex-1">
-                            <p className="text-sm font-medium text-white">
-                              {notification.title}
-                            </p>
-                            <p className="text-sm text-gray-300">
-                              {notification.message}
-                            </p>
-                            <p className="text-xs text-gray-400 mt-1">
-                              {notification.time}
-                            </p>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                </div>
-              )}
-            </div> */}
-
             <motion.button
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
@@ -345,6 +301,7 @@ export const DashboardNavbar = () => {
             </button>
 
             {/* Profile dropdown */}
+            {userLoggedIn && (
             <div className="relative" ref={profileRef}>
               <button
                 onClick={() => {
@@ -425,6 +382,18 @@ export const DashboardNavbar = () => {
                 </div>
               )}
             </div>
+            )}
+
+            {!userLoggedIn && (
+            <div className="relative" ref={profileRef}>
+              <Link 
+              to="/login" 
+              className="px-4 py-2 rounded-full bg-blue-600 text-white font-medium hover:bg-blue-700 transition-colors"
+            >
+              Sign In
+            </Link>
+            </div>
+            )}
 
             {/* Mobile menu button */}
             <div className="md:hidden">

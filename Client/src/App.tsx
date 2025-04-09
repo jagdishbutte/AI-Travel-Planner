@@ -14,6 +14,7 @@ import { SearchProvider } from "./context/SearchContext";
 import { Destinations } from "./components/explore/Destinations";
 import { PopularTrips } from "./components/explore/PopularTrips";
 import { TravelGuides } from "./components/explore/TravelGuides";
+import CreateTrip from "./components/dashboard/CreateTrip";
 
 // Lazy load components
 const LoginForm = React.lazy(() => import("./components/auth/LoginForm"));
@@ -28,10 +29,6 @@ const PreferencesSlider = React.lazy(() =>
 const Dashboard = React.lazy(
   () => import("./components/dashboard/DashboardLayout")
 );
-// const CreateTrip = React.lazy(
-//   () => import("./components/dashboard/CreateTrip")
-// );
-// const ViewTrip = React.lazy(() => import("./components/dashboard/ViewTrip"));
 
 function App() {
   const { user, isLoading, hasCompletedOnboarding } = useAuthStore();
@@ -88,11 +85,10 @@ function App() {
                     }
                   />
 
-                  {/* Protected routes */}
                   <Route
                     path="/dashboard/*"
                     element={
-                      !user ? <Navigate to="/login" replace /> : <Dashboard />
+                      <Dashboard />
                     }
                   >
                     <Route path="explore">
@@ -101,6 +97,23 @@ function App() {
                       <Route path="travel-guides" element={<TravelGuides />} />
                     </Route>
                   </Route>
+
+                  {/* Protected routes */}
+                  <Route 
+                    path="/dashboard/create-trip"
+                    element={
+                      !user ? <Navigate to="/login" replace /> : <CreateTrip />}
+                  />
+                  <Route 
+                    path="/dashboard/trips"
+                    element={
+                      !user ? <Navigate to="/login" replace /> : <CreateTrip />}
+                  />
+                  <Route 
+                    path="/dashboard/calendar"
+                    element={
+                      !user ? <Navigate to="/login" replace /> : <CreateTrip />}
+                  />
 
                   {/* Fallback route */}
                   <Route path="*" element={<Navigate to="/" replace />} />

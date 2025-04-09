@@ -23,7 +23,7 @@ export const Navbar = () => {
 
           <div className="md:flex items-center space-x-4 md:space-x-8">
             <Link 
-              to="/explore" 
+              to="/dashboard" 
               className="text-gray-300 hover:text-white transition-colors"
             >
               Explore

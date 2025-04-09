@@ -62,7 +62,7 @@ export const Hero = () => {
               <motion.button
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
-                onClick={() => navigate("/register")}
+                onClick={() => navigate("/dashboard")}
                 className="bg-blue-600 text-white px-8 py-4 rounded-lg text-lg font-medium inline-flex items-center space-x-2 hover:bg-blue-700 transition-colors shadow-lg"
               >
                 <span>Start Planning</span>
@@ -71,10 +71,10 @@ export const Hero = () => {
               <motion.button
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
-                onClick={() => navigate("/login")}
-                className="bg-gray-800/50 text-white px-8 py-4 rounded-lg text-lg font-medium inline-flex items-center space-x-2 hover:bg-gray-800 border border-gray-700 transition-colors shadow-lg"
+                onClick={() => navigate("/register")}
+                className="bg-gray-800/90 text-white px-8 py-4 rounded-lg text-lg font-medium inline-flex items-center space-x-2 hover:bg-gray-800 border border-gray-700 transition-colors shadow-lg"
               >
-                <span>Sign In</span>
+                <span>Create Account</span>
               </motion.button>
             </div>
           </motion.div>

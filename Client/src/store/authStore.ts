@@ -1,6 +1,7 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 import { User } from "../types";
+// import { useNavigate } from "react-router-dom";
 
 interface AuthState {
   user: User | null;
@@ -12,7 +13,7 @@ interface AuthState {
   setOnboardingComplete: (completed: boolean) => void;
   updateUserPreferences: (preferences: User["preferences"]) => void;
 }
-
+// const navigate = useNavigate();
 export const useAuthStore = create<AuthState>()(
   persist(
     (set) => ({
@@ -56,6 +57,7 @@ export const useAuthStore = create<AuthState>()(
         localStorage.removeItem("auth-storage");
         localStorage.removeItem("trip-storage");
         localStorage.removeItem("userId");
+        // navigate("/");
       },
 
       setOnboardingComplete: (completed: boolean) => {
