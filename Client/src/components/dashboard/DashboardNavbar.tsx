@@ -304,14 +304,6 @@ export const DashboardNavbar = () => {
                       <History className="h-4 w-4 mr-2" />
                       Travel History
                     </Link>
-                    {/* <Link
-                      to="/dashboard/favorites"
-                      onClick={() => setIsProfileOpen(false)}
-                      className="flex items-center px-4 py-2 text-sm text-gray-300 hover:bg-gray-700 hover:text-white transition-colors"
-                    >
-                      <Star className="h-4 w-4 mr-2" />
-                      Favorites
-                    </Link> */}
                     <Link
                       to="/dashboard/settings"
                       onClick={() => setIsProfileOpen(false)}
@@ -321,7 +313,7 @@ export const DashboardNavbar = () => {
                       Settings
                     </Link>
                     <Link
-                      to="/help"
+                      to="/dashboard/help"
                       onClick={() => setIsProfileOpen(false)}
                       className="flex items-center px-4 py-2 text-sm text-gray-300 hover:bg-gray-700 hover:text-white transition-colors"
                     >
