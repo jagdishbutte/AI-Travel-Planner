@@ -16,7 +16,9 @@
     transform: translate(0px, 0px) scale(1);
   }
 }
-
+body{
+  background-color: #111827;
+}
 .animate-blob {
   animation: blob 7s infinite;
 }

@@ -15,6 +15,8 @@ import { Destinations } from "./components/explore/Destinations";
 import { PopularTrips } from "./components/explore/PopularTrips";
 import { TravelGuides } from "./components/explore/TravelGuides";
 import CreateTrip from "./components/dashboard/CreateTrip";
+import { Trips } from "./components/travel/Trips";
+import { Calendar } from "./components/travel/Calendar";
 
 // Lazy load components
 const LoginForm = React.lazy(() => import("./components/auth/LoginForm"));
@@ -100,19 +102,19 @@ function App() {
 
                   {/* Protected routes */}
                   <Route 
-                    path="/dashboard/create-trip"
+                    path="/create-trip"
                     element={
                       !user ? <Navigate to="/login" replace /> : <CreateTrip />}
                   />
                   <Route 
-                    path="/dashboard/trips"
+                    path="/trips"
                     element={
-                      !user ? <Navigate to="/login" replace /> : <CreateTrip />}
+                      !user ? <Navigate to="/login" replace /> : <Trips/>}
                   />
                   <Route 
-                    path="/dashboard/calendar"
+                    path="/calendar"
                     element={
-                      !user ? <Navigate to="/login" replace /> : <CreateTrip />}
+                      !user ? <Navigate to="/login" replace /> : <Calendar />}
                   />
 
                   {/* Fallback route */}
