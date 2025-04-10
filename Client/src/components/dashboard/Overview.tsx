@@ -4,6 +4,7 @@ import { useTripStore } from "../../store/tripStore";
 import { useNavigate } from "react-router-dom";
 import { Trip } from "../../types";
 import { useEffect } from "react";
+import { useAuthStore } from "../../store/authStore";
 
 interface TripCardProps {
   trip: Trip;
@@ -242,10 +243,11 @@ export const Overview = () => {
   ];
 
   const { fetchTrips } = useTripStore();
+  const { user } = useAuthStore();
 
   useEffect(() => {
       fetchTrips(); 
-  }, []);
+  }, [user]);
 
   return (
     <>

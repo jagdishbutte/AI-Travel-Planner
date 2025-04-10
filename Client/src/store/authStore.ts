@@ -54,10 +54,6 @@ export const useAuthStore = create<AuthState>()(
 
       signOut: async () => {
         set({ user: null, hasCompletedOnboarding: false });
-        localStorage.removeItem("auth-storage");
-        localStorage.removeItem("trip-storage");
-        localStorage.removeItem("userId");
-        // navigate("/");
       },
 
       setOnboardingComplete: (completed: boolean) => {

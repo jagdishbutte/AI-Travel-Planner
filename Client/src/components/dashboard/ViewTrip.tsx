@@ -80,12 +80,6 @@ interface EditTripForm {
   preferences: string[];
 }
 
-// Lazy load heavy components
-// const TripMap = lazy(() => import("./TripMap"));
-// const WeatherWidget = lazy(() => import("./WeatherWidget"));
-// const AccommodationGallery = lazy(() => import("./AccommodationGallery"));
-// const ItineraryTimeline = lazy(() => import("./ItineraryTimeline"));
-
 export default function ViewTrip() {
   const { tripId } = useParams();
   const storeTrip = useTripStore((state) =>
@@ -150,7 +144,15 @@ export default function ViewTrip() {
   }, [tripId, storeTrip]);
 
   if (loading) return (
-      <div className="flex items-center justify-center h-full">
+      <div className="flex flex-col items-center justify-center content-center h-screen">
+          <motion.div
+              initial={{ scale: 0.8, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              transition={{ duration: 0.5 }}
+              className="p-4"
+          >
+              <Camera className="h-12 w-12 mx-auto text-blue-500" />
+          </motion.div>
           <p className="text-gray-400">Loading Trip...</p>
       </div>
   );
@@ -195,16 +197,7 @@ export default function ViewTrip() {
 
   const handleSaveTrip = async () => {
     setIsEditing(true);
-    // Simulate API call delay
     await new Promise((resolve) => setTimeout(resolve, 2000));
-    // updateTrip(tripId!, {
-    //   ...trip,
-    //   startDate: editForm.startDate,
-    //   endDate: editForm.endDate,
-    //   budget: editForm.budget,
-    //   travelers: editForm.numberOfPersons,
-    //   transportationType: editForm.transportationType,
-    // });
     setIsEditing(false);
     setIsEditModalOpen(false);
     setIsSaved(true);
@@ -217,38 +210,10 @@ export default function ViewTrip() {
     setTimeout(() => setIsLinkCopied(false), 2000);
   };
 
-  // Helper function to convert USD to INR (1 USD = ~83 INR)
-  // const convertToRupees = (usd: number) => {
-  //   return Math.round(usd * 83);
-  // };
-
   const handleBudgetClick = () => {
     navigate(`/dashboard/trips/${tripId}/budget`);
   };
 
-  // useEffect(() => {
-  //   const handleClickOutside = (event: MouseEvent) => {
-  //     if (isCalendarOpen) {
-  //       const target = event.target as HTMLElement;
-  //       if (!target.closest(".calendar-container")) {
-  //         setIsCalendarOpen(null);
-  //       }
-  //     }
-  //   };
-
-  //   document.addEventListener("mousedown", handleClickOutside);
-  //   return () => {
-  //     document.removeEventListener("mousedown", handleClickOutside);
-  //   };
-  // }, [isCalendarOpen]);
-
-  // useEffect(() => {
-  //   const timer = setTimeout(() => {
-  //     setIsSaved(false);
-  //   }, 1000);
-
-  //   return () => clearTimeout(timer);
-  // }, [isSaved]);
   return (
     <div
       className={`min-h-screen mt-12 ${

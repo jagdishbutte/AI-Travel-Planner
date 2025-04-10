@@ -118,7 +118,7 @@ export interface Trip {
     total: number;
   };
   image: string;
-  _id?: string; // MongoDB ID
+  _id?: string; 
 }
 
 // const userId = useAuthStore.getState().user?.id;
@@ -131,7 +131,7 @@ export interface Trip {
 //   } catch (error) {
 //     console.error("Error fetching trips:", error);
 //   }
-// },
+// }
 
 
 interface TripState {
@@ -158,7 +158,7 @@ export const useTripStore = create<TripState>()(
                 })),
             deleteTrip: async (id: string) => {
                 try {
-                    await tripsAPI.deleteTrip(id); // your actual API call to delete
+                    await tripsAPI.deleteTrip(id); 
                     set((state: any) => {
                         const updatedTrips = state.trips.filter(
                             (trip: Trip) => trip.id !== id
@@ -176,20 +176,8 @@ export const useTripStore = create<TripState>()(
 
                 try {
                     const res: any = await tripsAPI.getAllTrips(userId);
-                    console.log(res, "res");
                     const trips = res.data?.map((trip: any) => ({
                         ...trip,
-                        transportationDetails: trip.transportationDetails || {
-                            type: "flight",
-                            details: [],
-                        },
-                        totalCost: trip.totalCost || {
-                            accommodation: 0,
-                            transportation: 0,
-                            activities: 0,
-                            food: 0,
-                            total: 0,
-                        },
                     }));
                     set({ trips });
                 } catch (error) {
