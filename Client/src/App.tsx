@@ -137,6 +137,10 @@ function App() {
                                             path="calendar"
                                             element={<Calendar />}
                                         />
+                                        <Route path="profile" />
+                                        <Route path="history" />
+                                        <Route path="settings" />
+                                        <Route path="help" />
                                     </Route>
 
                                     {/* Fallback route */}
