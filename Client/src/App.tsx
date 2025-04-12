@@ -1,9 +1,9 @@
 import React, { Suspense } from "react";
 import {
-  BrowserRouter as Router,
-  Routes,
-  Route,
-  Navigate,
+    BrowserRouter as Router,
+    Routes,
+    Route,
+    Navigate,
 } from "react-router-dom";
 import { Navbar } from "./components/Navbar";
 import { Hero } from "./components/Hero";
@@ -17,116 +17,141 @@ import { TravelGuides } from "./components/explore/TravelGuides";
 import CreateTrip from "./components/dashboard/CreateTrip";
 import { Trips } from "./components/travel/Trips";
 import { Calendar } from "./components/travel/Calendar";
+import PrivateRoute from "./components/auth/PrivateRoute";
 
 // Lazy load components
 const LoginForm = React.lazy(() => import("./components/auth/LoginForm"));
 const RegistrationForm = React.lazy(
-  () => import("./components/registration/RegistrationForm")
+    () => import("./components/registration/RegistrationForm")
 );
 const PreferencesSlider = React.lazy(() =>
-  import("./components/onboarding/PreferencesSlider").then((module) => ({
-    default: module.default,
-  }))
+    import("./components/onboarding/PreferencesSlider").then((module) => ({
+        default: module.default,
+    }))
 );
 const Dashboard = React.lazy(
-  () => import("./components/dashboard/DashboardLayout")
+    () => import("./components/dashboard/DashboardLayout")
 );
 
 function App() {
-  const { user, isLoading, hasCompletedOnboarding } = useAuthStore();
+    const { user, isLoading, hasCompletedOnboarding } = useAuthStore();
 
-  if (isLoading) {
+    if (isLoading) {
+        return (
+            <div className="min-h-screen flex items-center justify-center bg-gray-900">
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
+            </div>
+        );
+    }
+
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-900">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
-      </div>
+        <ThemeProvider>
+            <SearchProvider>
+                <Router>
+                    <div className="min-h-screen bg-gray-900">
+                        <Navbar />
+                        <main>
+                            <Suspense fallback={<LoadingSpinner />}>
+                                <Routes>
+                                    {/* Public routes */}
+                                    <Route path="/" element={<Hero />} />
+                                    <Route
+                                        path="/login"
+                                        element={
+                                            user ? (
+                                                <Navigate
+                                                    to="/dashboard"
+                                                    replace
+                                                />
+                                            ) : (
+                                                <LoginForm />
+                                            )
+                                        }
+                                    />
+                                    <Route
+                                        path="/register"
+                                        element={
+                                            user ? (
+                                                <Navigate
+                                                    to="/preferences"
+                                                    replace
+                                                />
+                                            ) : (
+                                                <RegistrationForm />
+                                            )
+                                        }
+                                    />
+                                    <Route
+                                        path="/preferences"
+                                        element={
+                                            !user ? (
+                                                <Navigate to="/login" replace />
+                                            ) : hasCompletedOnboarding ? (
+                                                <Navigate
+                                                    to="/dashboard"
+                                                    replace
+                                                />
+                                            ) : (
+                                                <PreferencesSlider />
+                                            )
+                                        }
+                                    />
+
+                                    {/* Public dashboard */}
+                                    <Route
+                                        path="/dashboard"
+                                        element={<Dashboard />}
+                                    >
+                                        <Route
+                                            path="explore/destinations"
+                                            element={<Destinations />}
+                                        />
+                                        <Route
+                                            path="explore/popular-trips"
+                                            element={<PopularTrips />}
+                                        />
+                                        <Route
+                                            path="explore/travel-guides"
+                                            element={<TravelGuides />}
+                                        />
+                                    </Route>
+
+                                    {/* Protected dashboard routes */}
+                                    <Route
+                                        path="/dashboard"
+                                        element={
+                                            <PrivateRoute user={user}>
+                                                <Dashboard />
+                                            </PrivateRoute>
+                                        }
+                                    >
+                                        <Route
+                                            path="create-trip"
+                                            element={<CreateTrip />}
+                                        />
+                                        <Route
+                                            path="trips"
+                                            element={<Trips />}
+                                        />
+                                        <Route
+                                            path="calendar"
+                                            element={<Calendar />}
+                                        />
+                                    </Route>
+
+                                    {/* Fallback route */}
+                                    <Route
+                                        path="*"
+                                        element={<Navigate to="/" replace />}
+                                    />
+                                </Routes>
+                            </Suspense>
+                        </main>
+                    </div>
+                </Router>
+            </SearchProvider>
+        </ThemeProvider>
     );
-  }
-
-  return (
-    <ThemeProvider>
-      <SearchProvider>
-        <Router>
-          <div className="min-h-screen bg-gray-900">
-            <Navbar />
-            <main>
-              <Suspense fallback={<LoadingSpinner />}>
-                <Routes>
-                  {/* Public routes */}
-                  <Route path="/" element={<Hero />} />
-                  <Route
-                    path="/login"
-                    element={
-                      user ? (
-                        <Navigate to="/dashboard" replace />
-                      ) : (
-                        <LoginForm />
-                      )
-                    }
-                  />
-                  <Route
-                    path="/register"
-                    element={
-                      user ? (
-                        <Navigate to="/preferences" replace />
-                      ) : (
-                        <RegistrationForm />
-                      )
-                    }
-                  />
-                  <Route
-                    path="/preferences"
-                    element={
-                      !user ? (
-                        <Navigate to="/login" replace />
-                      ) : hasCompletedOnboarding ? (
-                        <Navigate to="/dashboard" replace />
-                      ) : (
-                        <PreferencesSlider />
-                      )
-                    }
-                  />
-
-                  <Route
-                    path="/dashboard/*"
-                    element={
-                      <Dashboard />
-                    }
-                  >
-                    <Route path="explore">
-                      <Route path="destinations" element={<Destinations />} />
-                      <Route path="popular-trips" element={<PopularTrips />} />
-                      <Route path="travel-guides" element={<TravelGuides />} />
-                    </Route>
-                  </Route>
-
-                  {/* Protected routes */}
-                  <Route 
-                    path="/create-trip"
-                    element={
-                      !user ? <Navigate to="/login" replace /> : <CreateTrip />}
-                  />
-                  <Route 
-                    path="/trips"
-                    element={
-                      !user ? <Navigate to="/login" replace /> : <Trips/>}
-                  />
-                  <Route 
-                    path="/calendar"
-                    element={
-                      !user ? <Navigate to="/login" replace /> : <Calendar />}
-                  />
-
-                  {/* Fallback route */}
-                  <Route path="*" element={<Navigate to="/" replace />} />
-                </Routes>
-              </Suspense>
-            </main>
-          </div>
-        </Router>
-      </SearchProvider>
-    </ThemeProvider>
-  );
 }
 
 export default App;
