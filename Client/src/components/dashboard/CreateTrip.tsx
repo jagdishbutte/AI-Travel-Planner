@@ -267,7 +267,7 @@ export const CreateTrip = () => {
                     "Learn a few basic phrases in the local language.",
                     "Keep important documents in your carry-on.",
                     "Check the weather forecast before packing.",
-                    "Make copies of your important documents.",
+                    "Always make copies of your important documents.",
                   ][loadingStep]
                 }
               </p>
