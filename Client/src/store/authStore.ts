@@ -1,13 +1,14 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
-import { User } from "../types";
+import { User, UserPreferences } from "../types";
 // import { useNavigate } from "react-router-dom";
 
 interface AuthState {
   user: User | null;
   isLoading: boolean;
   hasCompletedOnboarding: boolean;
-  signIn: (email: string, token: string, userId: string) => Promise<void>;
+  userPreferences: UserPreferences;
+  signIn: (email: string, token: string, userId: string, preferences: UserPreferences) => Promise<void>;
   signUp: (email: string, token: string, userId: string) => Promise<void>;
   signOut: () => Promise<void>;
   setOnboardingComplete: (completed: boolean) => void;
@@ -20,15 +21,17 @@ export const useAuthStore = create<AuthState>()(
       user: null,
       isLoading: false,
       hasCompletedOnboarding: false,
+      userPreferences: {} as UserPreferences,
 
-      signIn: async (email: string, token: string, userId: string) => {
+      signIn: async (email: string, token: string, userId: string, preferences: UserPreferences) => {
         set({ isLoading: true });
+        set({ userPreferences: preferences });
         try {
           set({
             user: {
               id: userId,
               email,
-              token,
+              token
             },
           });
         } finally {

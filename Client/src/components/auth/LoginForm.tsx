@@ -26,7 +26,7 @@ export const LoginForm = () => {
         localStorage.setItem("userId", data.userId);
 
         // Update auth state using your auth store
-        await signIn(email, "dummy-token", data.userId);
+        await signIn(email, data.token, data.userId, data.preferences);
 
         navigate("/dashboard");
       } else {

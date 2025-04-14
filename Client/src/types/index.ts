@@ -7,9 +7,13 @@ export interface User {
 }
 
 export interface UserPreferences {
-  travelStyle: string[];
-  destinations: string[];
-  foodPreferences: string[];
+    travelStyle: string[];
+    destinations: string[];
+    accommodation: string[];
+    transportation: string[];
+    activities: string[];
+    budget: string[];
+    tripLength: string[];
 }
 
 export interface Trip {

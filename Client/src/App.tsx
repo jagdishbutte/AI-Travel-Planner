@@ -18,6 +18,7 @@ import CreateTrip from "./components/dashboard/CreateTrip";
 import { Trips } from "./components/travel/Trips";
 import { Calendar } from "./components/travel/Calendar";
 import PrivateRoute from "./components/auth/PrivateRoute";
+import ViewTrip from "./components/dashboard/ViewTrip";
 
 // Lazy load components
 const LoginForm = React.lazy(() => import("./components/auth/LoginForm"));
@@ -113,6 +114,10 @@ function App() {
                                         <Route
                                             path="explore/travel-guides"
                                             element={<TravelGuides />}
+                                        />
+                                        <Route
+                                            path="trips/*"
+                                            element={<ViewTrip />}
                                         />
                                     </Route>
 

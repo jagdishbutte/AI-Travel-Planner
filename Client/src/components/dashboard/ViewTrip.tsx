@@ -126,7 +126,6 @@ export default function ViewTrip() {
 
               if (tripId) {
                   const response = await tripsAPI.getTrip(tripId);
-                  console.log(response);
                   if (response) {
                       setTrip(response as Trip);
                   } else {

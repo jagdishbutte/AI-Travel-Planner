@@ -19,6 +19,8 @@ export interface LoginRequest {
 export interface LoginResponse {
   message: string;
   userId: string;
+  token: string;
+  preferences: UserPreferences;
 }
 
 export interface RegisterRequest {
@@ -91,9 +93,9 @@ interface GenerateTripRequest {
   endDate: string;
 }
 
-interface TripPlan {
-  // ... your trip plan interface
-}
+// interface TripPlan {
+//   // ... your trip plan interface
+// }
 
 // API Services
 export const authAPI = {
@@ -129,26 +131,26 @@ export const tripsAPI = {
     return apiConnector("POST", trips.CREATE, data, null, null, null);
   },
 
-  getAllTrips: async (
-    userId: string
-  ): Promise<AxiosResponse<ApiResponse<Trip[]>>> => {
-    return apiConnector("GET", trips.GET_ALL, null, null, { userId }, null);
-  },
+  // getAllTrips: async (
+  //   userId: string
+  // ): Promise<AxiosResponse<ApiResponse<Trip[]>>> => {
+  //   return apiConnector("GET", trips.GET_ALL, null, null, { userId }, null);
+  // },
 
-  getTrip: async (id: string): Promise<AxiosResponse<ApiResponse<Trip>>> => {
-    return apiConnector("GET", trips.GET_ONE(id), null, null, null, null);
-  },
+  // getTrip: async (id: string): Promise<AxiosResponse<ApiResponse<Trip>>> => {
+  //   return apiConnector("GET", trips.GET_ONE(id), null, null, null, null);
+  // },
 
-  updateTrip: async (
-    id: string,
-    data: Partial<Trip>
-  ): Promise<AxiosResponse<ApiResponse<Trip>>> => {
-    return apiConnector("PUT", trips.UPDATE(id), data, null, null, null);
-  },
+  // updateTrip: async (
+  //   id: string,
+  //   data: Partial<Trip>
+  // ): Promise<AxiosResponse<ApiResponse<Trip>>> => {
+  //   return apiConnector("PUT", trips.UPDATE(id), data, null, null, null);
+  // },
 
-  deleteTrip: async (id: string): Promise<AxiosResponse<ApiResponse<void>>> => {
-    return apiConnector("DELETE", trips.DELETE(id), null, null, null, null);
-  },
+  // deleteTrip: async (id: string): Promise<AxiosResponse<ApiResponse<void>>> => {
+  //   return apiConnector("DELETE", trips.DELETE(id), null, null, null, null);
+  // },
 
   generateAITrip: (data: GenerateTripRequest) => {
     return apiConnector(

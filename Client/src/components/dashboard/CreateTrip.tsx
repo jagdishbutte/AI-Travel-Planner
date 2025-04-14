@@ -21,6 +21,7 @@ import { useTripStore } from "../../store/tripStore";
 import { format, differenceInDays } from "date-fns";
 import { tripAPI } from "../../lib/apiServices";
 import GooglePlacesAutocomplete from "react-google-places-autocomplete";
+import { useAuthStore } from "../../store/authStore";
 
 type BudgetType = "per_person" | "total";
 type BudgetDuration = "entire_trip" | "per_day";
@@ -110,6 +111,8 @@ export const CreateTrip = () => {
         endDate: undefined,
     });
 
+    const { userPreferences } = useAuthStore();
+
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
 
@@ -170,12 +173,7 @@ export const CreateTrip = () => {
                     : "",
                 endDate: formData.endDate ? formData.endDate.toISOString() : "",
                 userId: localStorage.getItem("userId"),
-                preferences: {
-                    activityLevel: "moderate",
-                    interests: [],
-                    dietaryRestrictions: [],
-                    accommodationType: "mid_range",
-                },
+                preferences: userPreferences,
             };
 
             // Call API
