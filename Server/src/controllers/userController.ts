@@ -3,6 +3,7 @@ import User from "../models/users";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import dotenv from "dotenv";
+import Preferences from "../models/preferences";
 
 dotenv.config();
 const app = express();
@@ -86,10 +87,35 @@ const userLogin: RequestHandler = async (req, res) => {
       return;
     }
 
+    const fetchPreferences = await Preferences.findOne({ userId: user._id }, {
+      travelStyle: 1,
+      destinations: 1,
+      accommodation: 1,
+      transportation: 1,
+      activities: 1,
+      budget: 1,
+      tripLength: 1,
+    });
+
+    const preferences = {
+        travelStyle: fetchPreferences?.travelStyle,
+        destinations: fetchPreferences?.destinations,
+        accommodation: fetchPreferences?.accommodation,
+        transportation: fetchPreferences?.transportation,
+        activities: fetchPreferences?.activities,
+        budget: fetchPreferences?.budget,
+        tripLength: fetchPreferences?.tripLength,
+    };
+
     const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET as string, {
       expiresIn: "1h",
     });
-    res.json({ message: "You are logged in successfully!", userId: user._id });
+    res.json({
+        message: "You are logged in successfully!",
+        userId: user._id,
+        token: token,
+        preferences: preferences,
+    });
     return;
   } catch (error: any) {
     res.status(500).json({ message: error.message });
