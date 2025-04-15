@@ -98,4 +98,6 @@ router.post("/generate", async (req, res) => {
   }
 });
 
+// router.post("/save", saveTripPlan);
+
 export default router;

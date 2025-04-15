@@ -2,6 +2,8 @@ import { GoogleGenerativeAI } from "@google/generative-ai";
 import dotenv from "dotenv";
 import { TripPlan, GenerateTripRequest } from "../types/tripTypes";
 import { generateTripPrompt } from "../utils/tripPrompt";
+import Trip from "../models/trip";
+import { Request, Response } from "express";
 
 dotenv.config();
 
@@ -135,3 +137,97 @@ export const tripAPI = {
         }
     },
 };
+
+// export const saveTripPlan = async (req: Request, res: Response) => {
+//     try {
+//         const tripPlan: TripPlan = JSON.parse(req.body as unknown as string);
+
+//         const trip = new Trip({
+//             user: tripPlan.id,
+//             title: tripPlan.title,
+//             destination: tripPlan.destination,
+//             days: tripPlan.days,
+//             travelers: tripPlan.travelers,
+//             budget: JSON.stringify(tripPlan.budget),
+//             preferences: tripPlan.preferences || {},
+//             itinerary: tripPlan.itinerary.map((day) => ({
+//                 date: day.date,
+//                 events: day.events.map((event) => ({
+//                     time: event.time,
+//                     title: event.title,
+//                     description: event.description,
+//                     type: event.type,
+//                     location: event.location
+//                         ? {
+//                               name: event.location.name,
+//                               coordinates: event.location.coordinates,
+//                               address: event.location.address,
+//                           }
+//                         : undefined,
+//                     cost: event.cost,
+//                     duration: event.duration,
+//                     bookingRequired: event.bookingRequired,
+//                     bookingUrl: event.bookingUrl,
+//                 })),
+//                 weather: {
+//                     condition: day.weather.condition,
+//                     temperature: day.weather.temperature,
+//                     humidity: day.weather.humidity,
+//                     precipitation: day.weather.precipitation,
+//                 },
+//             })),
+//             transportationType: tripPlan.transportationType,
+//             image: tripPlan.image,
+//             tipStatus: tripPlan.status || "planned",
+//             startDate: tripPlan.startDate,
+//             endDate: tripPlan.endDate,
+//             weather: tripPlan.weather,
+//             accommodation: tripPlan.accommodation.map((hotel) => ({
+//                 name: hotel.name,
+//                 image: hotel.image,
+//                 price: hotel.price,
+//                 rating: hotel.rating,
+//                 description: hotel.description,
+//                 amenities: hotel.amenities || [],
+//                 location: {
+//                     name: hotel.name,
+//                     coordinates: hotel.location?.coordinates || [],
+//                     address: hotel.location?.address || "",
+//                 },
+//                 roomTypes:
+//                     hotel.roomTypes?.map((room) => ({
+//                         type: room.type,
+//                         price: room.price,
+//                         capacity: room.capacity,
+//                         available: room.available,
+//                     })) || [],
+//                 contactInfo: {
+//                     phone: hotel.contactInfo?.phone || "",
+//                     email: hotel.contactInfo?.email || "",
+//                     website: hotel.contactInfo?.website || "",
+//                 },
+//                 bookingRequired: false, // or set based on your logic if available
+//                 bookingUrl: hotel.contactInfo?.website || "",
+//             })),
+//             totalCost: {
+//                 accommodation: tripPlan.totalCost.accommodation,
+//                 activities: tripPlan.totalCost.activities,
+//                 transportation: tripPlan.totalCost.transportation,
+//                 food: tripPlan.totalCost.food,
+//                 total: tripPlan.totalCost.total,
+//             },
+//         });
+
+//         await trip.save();
+
+//         res.status(201).json({
+//             message: "Trip saved successfully",
+//             tripId: trip._id,
+//         });
+//         return;
+//     } catch (error) {
+//         console.error("Error saving trip:", error);
+//         res.status(500).json({ error: "Failed to save trip" });
+//         return;
+//     }
+// };

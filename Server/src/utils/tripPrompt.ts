@@ -13,10 +13,13 @@ export const generateTripPrompt = (req: GenerateTripRequest): string => {
     ${
         req.preferences
             ? `
-    - Activity Level: ${req.preferences.activityLevel}
-    - Interests: ${req.preferences.interests?.join(", ")}
-    - Dietary Restrictions: ${req.preferences.dietaryRestrictions?.join(", ")}
-    - Accommodation Type: ${req.preferences.accommodationType}
+    - Trip Length: ${req.preferences.tripLength}
+    - Budget: ${req.preferences.budget}
+    - Travel Style: ${req.preferences.travelStyle}
+    - Destinations: ${req.preferences.destinations?.join(", ")}
+    - Activities: ${req.preferences.activities?.join(", ")}
+    - Transportation: ${req.preferences.transportation}
+    - Accommodation: ${req.preferences.accommodation}
     `
             : ""
     }

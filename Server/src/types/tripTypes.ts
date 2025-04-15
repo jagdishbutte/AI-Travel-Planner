@@ -28,6 +28,7 @@ export interface TripPlan {
   destination: string;
   startDate: string;
   endDate: string;
+  days: number;
   budget: {
     amount: number;
     type: "per_person" | "total";
@@ -115,11 +116,14 @@ export interface TripPlan {
     total: number;
   };
   preferences?: {
-    activityLevel: "relaxed" | "moderate" | "intensive";
-    interests: string[];
-    dietaryRestrictions?: string[];
-    accommodationType: "budget" | "mid_range" | "luxury";
-  };
+  tripLength:  string[];
+  budget:  string[];
+  travelStyle:  string[];
+  destinations: string[];
+  activities: string[];
+  transportation:  string[];
+  accommodation:  string[];
+};
   weather: Array<{
     condition: "sunny" | "cloudy" | "rainy" | "snowy" | "windy";
     temperature: number;
@@ -140,9 +144,12 @@ export interface GenerateTripRequest {
   startDate: string;
   endDate: string;
   preferences?: {
-    activityLevel?: "relaxed" | "moderate" | "intensive";
-    interests?: string[];
-    dietaryRestrictions?: string[];
-    accommodationType?: "budget" | "mid_range" | "luxury";
+    travelStyle?: string[]
+    destinations?: string[];
+    accommodation?: string[];
+    transportation?: string[];
+    activities?: string[];
+    budget?: string[];
+    tripLength?: string[];
   };
 }

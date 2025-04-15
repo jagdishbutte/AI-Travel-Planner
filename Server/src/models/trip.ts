@@ -82,12 +82,6 @@ const TripSchema: Schema = new Schema(
                         },
                         type: {
                             type: String,
-                            enum: [
-                                "activity",
-                                "transport",
-                                "food",
-                                "accommodation",
-                            ],
                             required: true,
                         },
                         location: {
