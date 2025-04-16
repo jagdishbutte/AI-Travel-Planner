@@ -279,7 +279,6 @@ export const DashboardNavbar = () => {
                 </div>
                 <ChevronDown className="h-4 w-4" />
               </button>
-              //
               {isProfileOpen && (
                 <div className="absolute right-0 mt-2 w-48 rounded-lg shadow-lg bg-gray-800 ring-1 ring-black ring-opacity-5">
                   <div className="py-1">

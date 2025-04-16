@@ -12,14 +12,14 @@ import {
   Camera,
   Bus,
   Share2,
-  Edit3,
-  Bookmark,
+  // Edit3,
+  // Bookmark,
+  // Facebook,
+  // Twitter,
+  // MessageCircle,
   Star,
   X,
   Link as LinkIcon,
-  Facebook,
-  Twitter,
-  MessageCircle,
   Copy,
   Check,
   ArrowLeft,
@@ -228,6 +228,13 @@ export default function ViewTrip() {
             <ArrowLeft className="h-5 w-5 mr-2" />
             Back to Home
           </button>
+          <button
+              onClick={() => setIsShareModalOpen(true)}
+              className="flex items-center gap-2 px-3 py-2 sm:px-4 sm:py-2 hover:bg-gray-700 rounded-md transition-colors"
+            >
+              <Share2 className="h-5 w-5" />
+              Share
+            </button>
         </div>
         <div className="relative h-64 rounded-xl overflow-hidden mb-8">
           <div
@@ -495,7 +502,7 @@ export default function ViewTrip() {
         </div>
 
         {/* Fixed Action Buttons */}
-        <div className="sticky bottom-8 left-0 right-0 flex justify-center z-30 mt-8">
+        {/* <div className="sticky bottom-8 left-0 right-0 flex justify-center z-30 mt-8">
           <div className="flex gap-4 rounded-lg">
             <button
               onClick={() => setIsEditModalOpen(true)}
@@ -519,7 +526,7 @@ export default function ViewTrip() {
               Save Trip
             </button>
           </div>
-        </div>
+        </div> */}
       </div>
 
 
@@ -749,7 +756,7 @@ export default function ViewTrip() {
                   </button>
                 </div>
 
-                <div className="grid grid-cols-3 gap-4">
+                {/* <div className="grid grid-cols-3 gap-4">
                   <button className="flex flex-col items-center justify-center p-4 bg-gray-700/50 rounded-lg hover:bg-gray-700 transition-colors">
                     <Facebook className="h-6 w-6 text-blue-500 mb-2" />
                     <span className="text-sm">Facebook</span>
@@ -762,7 +769,7 @@ export default function ViewTrip() {
                     <MessageCircle className="h-6 w-6 text-green-500 mb-2" />
                     <span className="text-sm">WhatsApp</span>
                   </button>
-                </div>
+                </div> */}
 
                 <div className="pt-4 border-t border-gray-700">
                   <button className="w-full flex items-center justify-center px-4 py-3 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors">
