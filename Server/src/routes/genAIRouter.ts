@@ -1,5 +1,5 @@
 import express from "express";
-import { generateTripPlan } from "../controllers/genAIController";
+import { generateTripPlan, updateTripController } from "../controllers/genAIController";
 import { TripPlan } from "../types/tripTypes";
 import Trip from "../models/trip";
 
@@ -97,6 +97,8 @@ router.post("/generate", async (req, res) => {
     res.status(500).json({ error: "Failed to generate trip plan" });
   }
 });
+
+router.put("/updateTrip", updateTripController);
 
 // router.post("/save", saveTripPlan);
 

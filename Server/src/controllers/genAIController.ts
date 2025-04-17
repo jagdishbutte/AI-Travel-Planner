@@ -1,7 +1,7 @@
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import dotenv from "dotenv";
 import { TripPlan, GenerateTripRequest } from "../types/tripTypes";
-import { generateTripPrompt } from "../utils/tripPrompt";
+import { generateTripPrompt, updateTripPrompt } from "../utils/tripPrompt";
 import Trip from "../models/trip";
 import { Request, Response } from "express";
 
@@ -137,6 +137,75 @@ export const tripAPI = {
         }
     },
 };
+
+export const updateTripController = async (req: Request, res: Response) => {
+    try {
+        const tripId = req.query.tripId as string;
+        const updateFields = req.body;
+
+        const existingTrip = await Trip.findById(tripId);
+        if (!existingTrip) {
+            res.status(404).json({ error: "Trip not found" });
+            return;
+        }
+
+        const prompt = updateTripPrompt(existingTrip, updateFields);
+
+        const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
+        const result = await model.generateContent(prompt);
+        const content = result.response.text();
+
+        const jsonMatch = content.match(/\{[\s\S]*\}/);
+        if (!jsonMatch) {
+            throw new Error("No valid JSON found in Gemini response.");
+        }
+
+        const updatedTrip = JSON.parse(jsonMatch[0]);
+
+        const destination = updateFields.location || existingTrip.destination || "travel";
+        const imageUrl = await fetchUnsplashImage(destination);
+        updatedTrip.image = imageUrl || "No image available";
+
+        if (
+            updatedTrip.accommodation &&
+            Array.isArray(updatedTrip.accommodation)
+        ) {
+            await Promise.all(
+                updatedTrip.accommodation.map(
+                    async (hotel: any, index: number) => {
+                        if (hotel && hotel.name) {
+                            const hotelImage = await fetchHotelImage(
+                                hotel.name,
+                                destination
+                            );
+                            updatedTrip.accommodation[index].image =
+                                hotelImage || "No image available";
+                        }
+                    }
+                )
+            );
+        }
+
+        const savedTrip = await Trip.findByIdAndUpdate(tripId, updatedTrip, {
+            new: true,
+        });
+
+        res.status(200).json({
+            success: true,
+            message: "Trip updated successfully.",
+            trip: savedTrip,
+        });
+        return;
+    } catch (error) {
+        console.error("Error updating trip:", error);
+        res.status(500).json({
+            error: "Failed to update trip. Please try again.",
+        });
+        return;
+    }
+};
+
+
 
 // export const saveTripPlan = async (req: Request, res: Response) => {
 //     try {

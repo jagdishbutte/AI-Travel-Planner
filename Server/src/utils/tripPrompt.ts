@@ -126,3 +126,35 @@ export const generateTripPrompt = (req: GenerateTripRequest): string => {
     Strictly adhere to the JSON format. Do not include any additional text, explanations, or comments outside of the JSON structure. If specific information cannot be found, provide a reasonable default or empty values. Do not use null values. Do not use placeholders. Provide real and practical itinerary. Itinerarary should be long and all inclusive. All prices should be in Indian rupees and provide practical proces according to real life. Give multiple hotel recommendations if possible. Give real image urls for hotels and destination.
     `;
 };
+
+export const updateTripPrompt = (
+    tripFromDb: any,
+    updateFields: any
+): string => {
+    return `Generate a new travel itinerary based on the following details:
+
+    ### Existing Trip:
+    ${JSON.stringify(tripFromDb, null, 2)}
+
+    ### User's Requested Changes:
+    - Start Date: ${updateFields.startDate}
+    - End Date: ${updateFields.endDate}
+    - Budget: ${updateFields.budget}
+    - Number of travelers: ${updateFields.travelers}
+    - Transportation: ${updateFields.transportationType}
+
+    ### Condider this Prompt to update the trip:
+    ${updateFields.userPrompt}
+
+    ### Instructions for Regenerating the Trip:
+    - Update all details in existing trip according to user's request.
+    - Make sure that the trip's itinerary, accommodation, activities, and transportation are adjusted according to the updated details.
+    - Incorporate the user's custom prompt instructions to guide the trip's generation.
+
+    ### JSON Response Format:
+    - Return the updated itinerary in the following format, ensuring all fields are populated with real, accurate, and practical data.
+    - If any specific information cannot be found, provide a reasonable default or empty values, but do not use null or placeholders.
+
+    **Strictly adhere to the JSON format. Provide accurate and practical data.**`;
+};
+
