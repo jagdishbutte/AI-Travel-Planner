@@ -87,7 +87,7 @@ export const trips = {
     CREATE: `${VITE_API_BASE_URL}/api/trips/create`,
     GET_TRIPS: `${VITE_API_BASE_URL}/trips/fetchTrips`,
     GET_ONE: `${VITE_API_BASE_URL}/trips/getTrip`,
-    UPDATE: `${VITE_API_BASE_URL}/trips/updateTrip`,
+    UPDATE: `${VITE_API_BASE_URL}/plan/updateTrip`,
     DELETE: `${VITE_API_BASE_URL}/trips/deleteTrip`,
 };
 
@@ -154,7 +154,7 @@ export const tripsAPI = {
 
     updateTrip: async (
         tripId: string,
-        data: Partial<Trip>
+        data: any
     ): Promise<AxiosResponse<ApiResponse<Trip>>> => {
         return apiConnector(
             "PUT",
