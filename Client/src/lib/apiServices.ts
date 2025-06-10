@@ -1,7 +1,8 @@
 import { apiConnector } from "./apiConnector";
 import { AxiosResponse } from "axios";
-import { auth, preferences, trips } from "./apis";
+import { auth, preferences, trips, admin } from "./apis";
 import { VITE_API_BASE_URL } from "./apiConnections";
+import { User } from "../types";
 
 // Common Types
 export interface ApiResponse<T = any> {
@@ -21,6 +22,7 @@ export interface LoginResponse {
   userId: string;
   token: string;
   preferences: UserPreferences;
+  role: "user" | "admin";
 }
 
 export interface RegisterRequest {
@@ -39,6 +41,7 @@ export interface RegisterResponse {
   message: string;
   token: string;
   userId: string;
+  role: "user" | "admin";
 }
 
 // User Preferences Types
@@ -170,6 +173,22 @@ export const tripAPI = {
       "POST",
       `${VITE_API_BASE_URL}/plan/generate`,
       data,
+      null,
+      null,
+      null
+    );
+  },
+};
+
+export const adminAPI = {
+  getAllUsers: async (): Promise<AxiosResponse<ApiResponse<User[]>>> => {
+    return apiConnector("GET", admin.GET_ALL_USERS, null, null, null, null);
+  },
+  deleteUser: async (userId: string): Promise<AxiosResponse<ApiResponse>> => {
+    return apiConnector(
+      "DELETE",
+      `${admin.DELETE_USER}/${userId}`,
+      null,
       null,
       null,
       null

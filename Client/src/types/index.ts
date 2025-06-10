@@ -1,23 +1,33 @@
 export interface User {
-  id: string;
+  _id: string;
+  name: string;
   email: string;
   token: string;
-  location?: string;
+  role: "user" | "admin";
+  createdAt: string;
+  location: string;
+  age: string;
+  mobile: string;
+  nationality: string;
+  occupation: string;
+  passportNumber?: string;
   preferences?: UserPreferences;
+  profilePicture?: string;
 }
 
 export interface UserPreferences {
-    travelStyle: string[];
-    destinations: string[];
-    accommodation: string[];
-    transportation: string[];
-    activities: string[];
-    budget: string[];
-    tripLength: string[];
+  travelStyle: string[];
+  destinations: string[];
+  accommodation: string[];
+  transportation: string[];
+  activities: string[];
+  budget: string[];
+  tripLength: string[];
 }
 
 export interface Trip {
-  id: string;
+  id?: string;
+  _id?: string;
   title: string;
   destination: string;
   startDate: string;
@@ -101,7 +111,6 @@ export interface Trip {
     total: number;
   };
   image?: string;
-  _id?: string;
 }
 
 export interface WeatherInfo {

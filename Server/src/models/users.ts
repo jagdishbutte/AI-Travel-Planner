@@ -40,6 +40,11 @@ const userSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
+    role: {
+      type: String,
+      default: "user",
+      enum: ["user", "admin"],
+    },
     // emergencyContact: {
     //   type: String,
     //   required: true,

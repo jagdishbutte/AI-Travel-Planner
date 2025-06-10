@@ -62,6 +62,7 @@ const userRegister: RequestHandler = async (req, res) => {
       message: "User registered successfully",
       token,
       userId: newUser._id,
+      role: newUser.role,
     });
   } catch (error: any) {
     console.error("Registration error:", error);
@@ -87,34 +88,38 @@ const userLogin: RequestHandler = async (req, res) => {
       return;
     }
 
-    const fetchPreferences = await Preferences.findOne({ userId: user._id }, {
-      travelStyle: 1,
-      destinations: 1,
-      accommodation: 1,
-      transportation: 1,
-      activities: 1,
-      budget: 1,
-      tripLength: 1,
-    });
+    const fetchPreferences = await Preferences.findOne(
+      { userId: user._id },
+      {
+        travelStyle: 1,
+        destinations: 1,
+        accommodation: 1,
+        transportation: 1,
+        activities: 1,
+        budget: 1,
+        tripLength: 1,
+      }
+    );
 
     const preferences = {
-        travelStyle: fetchPreferences?.travelStyle,
-        destinations: fetchPreferences?.destinations,
-        accommodation: fetchPreferences?.accommodation,
-        transportation: fetchPreferences?.transportation,
-        activities: fetchPreferences?.activities,
-        budget: fetchPreferences?.budget,
-        tripLength: fetchPreferences?.tripLength,
+      travelStyle: fetchPreferences?.travelStyle,
+      destinations: fetchPreferences?.destinations,
+      accommodation: fetchPreferences?.accommodation,
+      transportation: fetchPreferences?.transportation,
+      activities: fetchPreferences?.activities,
+      budget: fetchPreferences?.budget,
+      tripLength: fetchPreferences?.tripLength,
     };
 
     const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET as string, {
       expiresIn: "1h",
     });
     res.json({
-        message: "You are logged in successfully!",
-        userId: user._id,
-        token: token,
-        preferences: preferences,
+      message: "You are logged in successfully!",
+      userId: user._id,
+      token: token,
+      preferences: preferences,
+      role: user.role,
     });
     return;
   } catch (error: any) {
@@ -122,7 +127,38 @@ const userLogin: RequestHandler = async (req, res) => {
   }
 };
 
+const getAllUsers: RequestHandler = async (req, res) => {
+  try {
+    const users = await User.find({}, "-password");
+    res.json({
+      success: true,
+      message: "Users fetched successfully",
+      data: users,
+    });
+  } catch (error: any) {
+    res
+      .status(500)
+      .json({ success: false, message: error.message, data: null });
+  }
+};
+
+const deleteUser: RequestHandler = async (req, res) => {
+  const { id } = req.params;
+  try {
+    const user = await User.findByIdAndDelete(id);
+    if (!user) {
+      res.status(404).json({ success: false, message: "User not found" });
+      return;
+    }
+    res.json({ success: true, message: "User deleted successfully" });
+  } catch (error: any) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
 export const userController = {
   userRegister,
   userLogin,
+  getAllUsers,
+  deleteUser,
 };
