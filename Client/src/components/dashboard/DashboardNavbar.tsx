@@ -221,7 +221,7 @@ export const DashboardNavbar = () => {
   return (
     <nav className="fixed top-0 w-full z-50 bg-gray-900/95 backdrop-blur-sm border-b border-gray-800">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-16">
+        <div className="flex items-center justify-between h-[8vh]">
           {/* Logo and main nav */}
           <div className="flex items-center">
             <Link to="/dashboard" className="flex items-center space-x-2">
@@ -264,90 +264,90 @@ export const DashboardNavbar = () => {
 
             {/* Profile dropdown */}
             {userLoggedIn && (
-            <div className="relative" ref={profileRef}>
-              <button
-                onClick={() => {
-                  setIsProfileOpen(!isProfileOpen);
-                  setActiveDropdown(null);
-                }}
-                className="flex items-center space-x-2 p-2 rounded-lg hover:bg-gray-800/50 text-gray-300 hover:text-white transition-colors"
-              >
-                <div className="w-8 h-8 rounded-full bg-blue-500/20 flex items-center justify-center">
-                  <span className="text-sm font-medium text-blue-400">
-                    {user?.email ? user.email[0].toUpperCase() : "U"}
-                  </span>
-                </div>
-                <ChevronDown className="h-4 w-4" />
-              </button>
-              {isProfileOpen && (
-                <div className="absolute right-0 mt-2 w-48 rounded-lg shadow-lg bg-gray-800 ring-1 ring-black ring-opacity-5">
-                  <div className="py-1">
-                    <div className="px-4 py-2 border-b border-gray-700">
-                      <p className="text-sm text-white font-medium truncate">
-                        {user?.email}
-                      </p>
-                    </div>
-                    <Link
-                      to="/dashboard/profile"
-                      onClick={() => setIsProfileOpen(false)}
-                      className="flex items-center px-4 py-2 text-sm text-gray-300 hover:bg-gray-700 hover:text-white transition-colors"
-                    >
-                      <User className="h-4 w-4 mr-2" />
-                      My Profile
-                    </Link>
-                    <Link
-                      to="/dashboard/history"
-                      onClick={() => setIsProfileOpen(false)}
-                      className="flex items-center px-4 py-2 text-sm text-gray-300 hover:bg-gray-700 hover:text-white transition-colors"
-                    >
-                      <History className="h-4 w-4 mr-2" />
-                      Travel History
-                    </Link>
-                    <Link
-                      to="/dashboard/settings"
-                      onClick={() => setIsProfileOpen(false)}
-                      className="flex items-center px-4 py-2 text-sm text-gray-300 hover:bg-gray-700 hover:text-white transition-colors"
-                    >
-                      <Settings className="h-4 w-4 mr-2" />
-                      Settings
-                    </Link>
-                    <Link
-                      to="/dashboard/help"
-                      onClick={() => setIsProfileOpen(false)}
-                      className="flex items-center px-4 py-2 text-sm text-gray-300 hover:bg-gray-700 hover:text-white transition-colors"
-                    >
-                      <HelpCircle className="h-4 w-4 mr-2" />
-                      Help & Support
-                    </Link>
-                    <div className="border-t border-gray-700">
-                      <button
-                        onClick={() => {
-                          signOut();
-                          setIsProfileOpen(false);
-                          localStorage.clear();
-                          resetTrips();
-                        }}
-                        className="flex items-center w-full text-left px-4 py-2 text-sm text-gray-300 hover:bg-gray-700 hover:text-white transition-colors"
+              <div className="relative" ref={profileRef}>
+                <button
+                  onClick={() => {
+                    setIsProfileOpen(!isProfileOpen);
+                    setActiveDropdown(null);
+                  }}
+                  className="flex items-center space-x-2 p-2 rounded-lg hover:bg-gray-800/50 text-gray-300 hover:text-white transition-colors"
+                >
+                  <div className="w-8 h-8 rounded-full bg-blue-500/20 flex items-center justify-center">
+                    <span className="text-sm font-medium text-blue-400">
+                      {user?.email ? user.email[0].toUpperCase() : "U"}
+                    </span>
+                  </div>
+                  <ChevronDown className="h-4 w-4" />
+                </button>
+                {isProfileOpen && (
+                  <div className="absolute right-0 mt-2 w-48 rounded-lg shadow-lg bg-gray-800 ring-1 ring-black ring-opacity-5">
+                    <div className="py-1">
+                      <div className="px-4 py-2 border-b border-gray-700">
+                        <p className="text-sm text-white font-medium truncate">
+                          {user?.email}
+                        </p>
+                      </div>
+                      <Link
+                        to="/dashboard/profile"
+                        onClick={() => setIsProfileOpen(false)}
+                        className="flex items-center px-4 py-2 text-sm text-gray-300 hover:bg-gray-700 hover:text-white transition-colors"
                       >
-                        <LogOut className="h-4 w-4 mr-2" />
-                        Sign out
-                      </button>
+                        <User className="h-4 w-4 mr-2" />
+                        My Profile
+                      </Link>
+                      <Link
+                        to="/dashboard/history"
+                        onClick={() => setIsProfileOpen(false)}
+                        className="flex items-center px-4 py-2 text-sm text-gray-300 hover:bg-gray-700 hover:text-white transition-colors"
+                      >
+                        <History className="h-4 w-4 mr-2" />
+                        Travel History
+                      </Link>
+                      <Link
+                        to="/dashboard/settings"
+                        onClick={() => setIsProfileOpen(false)}
+                        className="flex items-center px-4 py-2 text-sm text-gray-300 hover:bg-gray-700 hover:text-white transition-colors"
+                      >
+                        <Settings className="h-4 w-4 mr-2" />
+                        Settings
+                      </Link>
+                      <Link
+                        to="/dashboard/help"
+                        onClick={() => setIsProfileOpen(false)}
+                        className="flex items-center px-4 py-2 text-sm text-gray-300 hover:bg-gray-700 hover:text-white transition-colors"
+                      >
+                        <HelpCircle className="h-4 w-4 mr-2" />
+                        Help & Support
+                      </Link>
+                      <div className="border-t border-gray-700">
+                        <button
+                          onClick={() => {
+                            signOut();
+                            setIsProfileOpen(false);
+                            localStorage.clear();
+                            resetTrips();
+                          }}
+                          className="flex items-center w-full text-left px-4 py-2 text-sm text-gray-300 hover:bg-gray-700 hover:text-white transition-colors"
+                        >
+                          <LogOut className="h-4 w-4 mr-2" />
+                          Sign out
+                        </button>
+                      </div>
                     </div>
                   </div>
-                </div>
-              )}
-            </div>
+                )}
+              </div>
             )}
 
             {!userLoggedIn && (
-            <div className="relative" ref={profileRef}>
-              <Link 
-              to="/login" 
-              className="px-4 py-2 rounded-full bg-blue-600 text-white font-medium hover:bg-blue-700 transition-colors"
-            >
-              Sign In
-            </Link>
-            </div>
+              <div className="relative" ref={profileRef}>
+                <Link
+                  to="/login"
+                  className="px-4 py-2 rounded-full bg-blue-600 text-white font-medium hover:bg-blue-700 transition-colors"
+                >
+                  Sign In
+                </Link>
+              </div>
             )}
 
             {/* Mobile menu button */}

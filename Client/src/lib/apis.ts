@@ -1,6 +1,7 @@
 import { apiConnector } from "./apiConnector";
 import { AxiosResponse } from "axios";
 import { VITE_API_BASE_URL } from "./apiConnections";
+// import { User } from "../types";
 
 // Common Types
 export interface ApiResponse<T = any> {
@@ -48,29 +49,7 @@ export interface PreferencesRequest extends UserPreferences {
   userId: string;
 }
 
-// Trip Types
-export interface TripRequest {
-  destination: string;
-  startDate: string;
-  endDate: string;
-  budget: {
-    amount: number;
-    type: "per_person" | "total";
-  };
-  travelers: number;
-  transportationType: string;
-}
-
-export interface Trip extends TripRequest {
-  id?: string;
-  _id?: string;
-  title: string;
-  status: "planned" | "ongoing" | "completed";
-  itinerary: any[];
-  weather: any[];
-  accommodation: any[];
-  image: string;
-}
+// Trip Types are now imported from ../types
 
 // API Endpoints Configuration
 export const auth = {
@@ -84,11 +63,16 @@ export const preferences = {
 };
 
 export const trips = {
-    CREATE: `${VITE_API_BASE_URL}/api/trips/create`,
-    GET_TRIPS: `${VITE_API_BASE_URL}/trips/fetchTrips`,
-    GET_ONE: `${VITE_API_BASE_URL}/trips/getTrip`,
-    UPDATE: `${VITE_API_BASE_URL}/plan/updateTrip`,
-    DELETE: `${VITE_API_BASE_URL}/trips/deleteTrip`,
+  CREATE: `${VITE_API_BASE_URL}/api/trips/create`,
+  GET_TRIPS: `${VITE_API_BASE_URL}/trips/fetchTrips`,
+  GET_ONE: `${VITE_API_BASE_URL}/trips/getTrip`,
+  UPDATE: `${VITE_API_BASE_URL}/plan/updateTrip`,
+  DELETE: `${VITE_API_BASE_URL}/trips/deleteTrip`,
+};
+
+export const admin = {
+  GET_ALL_USERS: `${VITE_API_BASE_URL}/users/users`,
+  DELETE_USER: `${VITE_API_BASE_URL}/users/users`,
 };
 
 // API Services
@@ -121,61 +105,38 @@ export const preferencesAPI = {
 };
 
 export const tripsAPI = {
-    createTrip: async (
-        data: TripRequest
-    ): Promise<AxiosResponse<ApiResponse<Trip>>> => {
-        return apiConnector("POST", trips.CREATE, data, null, null, null);
-    },
+  createTrip: async (
+    data: TripRequest
+  ): Promise<AxiosResponse<ApiResponse<Trip>>> => {
+    return apiConnector("POST", trips.CREATE, data, null, null, null);
+  },
 
-    getAllTrips: async (
-        userId: string
-    ): Promise<AxiosResponse<ApiResponse<Trip[]>>> => {
-        return apiConnector(
-            "GET",
-            trips.GET_TRIPS,
-            null,
-            null,
-            { userId },
-            null
-        );
-    },
+  getAllTrips: async (userId: string): Promise<ApiResponse<Trip[]>> => {
+    return apiConnector("GET", trips.GET_TRIPS, null, null, { userId }, null);
+  },
 
-    getTrip: async (tripId: string): Promise<Trip> => {
-        const response = await apiConnector(
-            "GET",
-            trips.GET_ONE,
-            null,
-            null,
-            { tripId },
-            null
-        );
-        return response.data as Trip;
-    },
+  getTrip: async (tripId: string): Promise<Trip> => {
+    const response = await apiConnector(
+      "GET",
+      trips.GET_ONE,
+      null,
+      null,
+      { tripId },
+      null
+    );
+    return response.data as Trip;
+  },
 
-    updateTrip: async (
-        tripId: string,
-        data: any
-    ): Promise<AxiosResponse<ApiResponse<Trip>>> => {
-        return apiConnector(
-            "PUT",
-            trips.UPDATE,
-            data,
-            null,
-            { tripId },
-            null
-        );
-    },
+  updateTrip: async (
+    tripId: string,
+    data: any
+  ): Promise<AxiosResponse<ApiResponse<Trip>>> => {
+    return apiConnector("PUT", trips.UPDATE, data, null, { tripId }, null);
+  },
 
-    deleteTrip: async (
-        tripId: string
-    ): Promise<AxiosResponse<ApiResponse<void>>> => {
-        return apiConnector(
-            "DELETE",
-            trips.DELETE,
-            null,
-            null,
-            { tripId },
-            null
-        );
-    },
+  deleteTrip: async (
+    tripId: string
+  ): Promise<AxiosResponse<ApiResponse<void>>> => {
+    return apiConnector("DELETE", trips.DELETE, null, null, { tripId }, null);
+  },
 };

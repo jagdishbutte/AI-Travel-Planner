@@ -255,7 +255,7 @@ export default function ViewTrip() {
 
     return (
         <div
-            className={`min-h-screen mt-12 ${
+            className={`min-h-screen mt-6 ${
                 theme === "dark" ? "bg-gray-900" : "bg-white"
             }`}
         >

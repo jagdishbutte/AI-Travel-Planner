@@ -7,5 +7,7 @@ router.use(cors());
 
 router.post("/userRegister", userController.userRegister);
 router.post("/userLogin", userController.userLogin);
+router.get("/users", userController.getAllUsers);
+router.delete("/users/:id", userController.deleteUser);
 
 export default router;
