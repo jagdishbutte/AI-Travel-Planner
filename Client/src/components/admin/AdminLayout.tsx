@@ -1,6 +1,6 @@
 import React from "react";
 import { Outlet, NavLink, Link } from "react-router-dom";
-import { Users, Globe } from "lucide-react";
+import { Users, Globe, LayoutDashboard } from "lucide-react";
 
 const AdminLayout: React.FC = () => {
   const navLinkClasses =
@@ -19,6 +19,15 @@ const AdminLayout: React.FC = () => {
         </Link>
 
         <nav className="space-y-2 ml-4">
+          <NavLink
+            to="/admin/dashboard"
+            className={({ isActive }) =>
+              `${navLinkClasses} ${isActive ? activeLinkClasses : ""}`
+            }
+          >
+            <LayoutDashboard className="mr-8" />
+            <span>Dashboard</span>
+          </NavLink>
           <NavLink
             to="/admin/users"
             className={({ isActive }) =>
