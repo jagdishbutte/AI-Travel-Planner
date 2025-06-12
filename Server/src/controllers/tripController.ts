@@ -3,67 +3,69 @@ import { RequestHandler } from "express";
 import Trip from "../models/trip";
 import mongoose, { Types } from "mongoose";
 
-export const getUserTrips : RequestHandler = async (req, res): Promise<void> => {
+export const getUserTrips: RequestHandler = async (req, res): Promise<void> => {
   try {
-      const userId = req.query.userId;
-      if (!userId) {
-        res.status(400).json({ error: "userId is required" });
-        return;
-      }
+    const userId = req.query.userId;
+    if (!userId) {
+      res.status(400).json({ error: "userId is required" });
+      return;
+    }
 
-      const trips = await Trip.find({ user: new Types.ObjectId(userId as string) }).sort({ createdAt: -1 });
+    const trips = await Trip.find({
+      user: new Types.ObjectId(userId as string),
+    }).sort({ createdAt: -1 });
 
-      res.json(trips);
+    res.json(trips);
   } catch (error) {
-      console.error("Error fetching trips:", error);
-      res.status(500).json({ error: "Failed to fetch trips" });
+    console.error("Error fetching trips:", error);
+    res.status(500).json({ error: "Failed to fetch trips" });
   }
-}
+};
 
 export const getTrip: RequestHandler = async (req, res): Promise<void> => {
-    try {
-        const tripId = req.query.tripId as string;
-        if (!tripId) {
-            res.status(400).json({ error: "tripId is required" });
-            return;
-        } else {      
-          const trip = await Trip.findById(tripId);
-          if (!trip) {
-            res.status(404).json({ error: "Trip not found" });
-            return;
-          }
-          res.json(trip);
-        }
-    } catch (error) {
-        console.error("Error fetching trip:", error);
-        res.status(500).json({ error: "Failed to fetch trip" });
+  try {
+    const tripId = req.query.tripId as string;
+    if (!tripId) {
+      res.status(400).json({ error: "tripId is required" });
+      return;
+    } else {
+      const trip = await Trip.findById(tripId);
+      if (!trip) {
+        res.status(404).json({ error: "Trip not found" });
+        return;
+      }
+      res.json(trip);
     }
+  } catch (error) {
+    console.error("Error fetching trip:", error);
+    res.status(500).json({ error: "Failed to fetch trip" });
+  }
 };
 
 export const saveTrip: RequestHandler = async (req, res): Promise<void> => {
-    try {
-        const { userId, tripData } = req.body;
-        if (!userId || !tripData) {
-            res.status(400).json({
-                success: false,
-                message: "userId and tripData are required",
-            });
-            return;
-        }
-        const trip = new Trip({
-            ...tripData,
-            user: new mongoose.Types.ObjectId(userId),
-        });
-        await trip.save();
-        res.status(201).json({
-            success: true,
-            message: "Trip saved successfully",
-            trip,
-        });
-    } catch (error) {
-        console.error("Error saving trip:", error);
-        res.status(500).json({ error: "Failed to save trip" });
+  try {
+    const { userId, tripData } = req.body;
+    if (!userId || !tripData) {
+      res.status(400).json({
+        success: false,
+        message: "userId and tripData are required",
+      });
+      return;
     }
+    const trip = new Trip({
+      ...tripData,
+      user: new mongoose.Types.ObjectId(userId),
+    });
+    await trip.save();
+    res.status(201).json({
+      success: true,
+      message: "Trip saved successfully",
+      trip,
+    });
+  } catch (error) {
+    console.error("Error saving trip:", error);
+    res.status(500).json({ error: "Failed to save trip" });
+  }
 };
 
 export const deleteTrip: RequestHandler = async (req, res): Promise<void> => {
@@ -105,5 +107,20 @@ export const deleteTrip: RequestHandler = async (req, res): Promise<void> => {
       error: error instanceof Error ? error.message : "Unknown error occurred",
     });
     return;
+  }
+};
+
+export const getAllTripsForAdmin: RequestHandler = async (
+  req,
+  res
+): Promise<void> => {
+  try {
+    const trips = await Trip.find({})
+      .sort({ createdAt: -1 })
+      .populate("user", "name email");
+    res.json(trips);
+  } catch (error) {
+    console.error("Error fetching trips for admin:", error);
+    res.status(500).json({ error: "Failed to fetch trips for admin" });
   }
 };

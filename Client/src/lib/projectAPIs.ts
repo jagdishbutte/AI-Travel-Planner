@@ -49,3 +49,31 @@ export const preferencesAPI = {
     return apiConnector("POST", "/preferences/save", data, null, null, null);
   },
 };
+
+// Admin APIs
+export const adminAPI = {
+  getDashboardStats: async (): Promise<AxiosResponse> => {
+    const baseUrl =
+      import.meta.env.VITE_API_BASE_URL || "http://localhost:2300";
+    return apiConnector(
+      "GET",
+      `${baseUrl}/admin/stats`,
+      null,
+      null,
+      null,
+      null
+    );
+  },
+  getAllTrips: async (): Promise<AxiosResponse> => {
+    const baseUrl =
+      import.meta.env.VITE_API_BASE_URL || "http://localhost:2300";
+    return apiConnector(
+      "GET",
+      `${baseUrl}/admin/trips`,
+      null,
+      null,
+      null,
+      null
+    );
+  },
+};

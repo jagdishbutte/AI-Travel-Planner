@@ -5,7 +5,7 @@ import { Trip } from "../../types";
 import { tripsAPI } from "../../lib/apis";
 import AdminTripCard from "./AdminTripCard";
 import { useAuthStore } from "../../store/authStore";
-import { ArrowLeft } from "lucide-react";
+// import { ArrowLeft } from "lucide-react";
 
 const UserDetail: React.FC = () => {
   const { userId } = useParams();
@@ -24,8 +24,10 @@ const UserDetail: React.FC = () => {
         const response = await tripsAPI.getAllTrips(userId);
         // The response from getAllTrips is an object with a 'data' property containing the array
         setTrips(response.data || []);
-      } catch (err: any) {
-        setError(err.message || "Failed to fetch user trips");
+      } catch (err: unknown) {
+        setError(
+          err instanceof Error ? err.message : "Failed to fetch user trips"
+        );
       } finally {
         setIsLoading(false);
       }
@@ -48,15 +50,49 @@ const UserDetail: React.FC = () => {
     return <div className="text-red-500">Error: {error}</div>;
   }
 
+  if (!user) return <div className="text-white">User not found.</div>;
+
   return (
-    <div className="text-white mt-6">
-      <button
-        onClick={() => navigate(-1)}
-        className="flex items-center text-gray-400 hover:text-white transition-colors mb-6"
-      >
-        <ArrowLeft className="h-5 w-5 mr-2" />
-        Back to User List
-      </button>
+    <div className="text-white">
+      <header className="sticky top-0 bg-gray-900 z-10 p-6 border-b border-gray-800">
+        <h2 className="text-2xl font-bold">User Details</h2>
+      </header>
+      <div className="p-6">
+        <div className="bg-gray-800 p-6 rounded-lg">
+          <div className="flex justify-between items-center mb-4">
+            <h3 className="text-xl font-bold">{user.name}</h3>
+            <span
+              className={`px-3 py-1 rounded-full text-sm ${
+                user.role === "admin" ? "bg-blue-500" : "bg-gray-600"
+              }`}
+            >
+              {user.role}
+            </span>
+          </div>
+          <div className="space-y-4">
+            <p>
+              <strong className="text-gray-400">Email:</strong> {user.email}
+            </p>
+            <p>
+              <strong className="text-gray-400">Mobile:</strong> {user.mobile}
+            </p>
+            <p>
+              <strong className="text-gray-400">Location:</strong>{" "}
+              {user.location}
+            </p>
+            <p>
+              <strong className="text-gray-400">Joined:</strong>{" "}
+              {new Date(user.createdAt).toLocaleDateString()}
+            </p>
+          </div>
+          <button
+            onClick={() => navigate(-1)}
+            className="mt-6 bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded"
+          >
+            Back to User List
+          </button>
+        </div>
+      </div>
       <h2 className="text-3xl font-bold mb-6">
         Trips for {user?.name || "User"}
       </h2>

@@ -7,6 +7,7 @@ import preferenceRouter from "./routes/preferencesRouter";
 import preferencesRoutes from "./routes/preferences";
 import genAIRouter from "./routes/genAIRouter";
 import tripRoutes from "./routes/tripRoutes";
+import adminRouter from "./routes/adminRouter";
 
 dotenv.config(); // Load .env variables
 
@@ -31,6 +32,7 @@ app.use("/users", userRouter, preferenceRouter);
 app.use("/preferences", preferencesRoutes);
 app.use("/plan", genAIRouter);
 app.use("/trips", tripRoutes);
+app.use("/admin", adminRouter);
 app.get("/", (req, res) => {
   res.send("Hello World");
 });

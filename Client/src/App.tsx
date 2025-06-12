@@ -24,6 +24,8 @@ import AdminLayout from "./components/admin/AdminLayout";
 import UserList from "./components/admin/UserList";
 import UserDetail from "./components/admin/UserDetail";
 import AdminViewTrip from "./components/admin/AdminViewTrip";
+import AdminDashboard from "./components/admin/AdminDashboard";
+import TripList from "./components/admin/TripList";
 
 // Lazy load components
 const LoginForm = React.lazy(() => import("./components/auth/LoginForm"));
@@ -138,8 +140,14 @@ function App() {
                       </AdminRoute>
                     }
                   >
+                    <Route
+                      index
+                      element={<Navigate to="dashboard" replace />}
+                    />
+                    <Route path="dashboard" element={<AdminDashboard />} />
                     <Route path="users" element={<UserList />} />
                     <Route path="users/:userId" element={<UserDetail />} />
+                    <Route path="trips" element={<TripList />} />
                     <Route path="trips/:tripId" element={<AdminViewTrip />} />
                   </Route>
 
