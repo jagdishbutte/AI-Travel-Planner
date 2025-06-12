@@ -184,6 +184,18 @@ export const adminAPI = {
   getAllUsers: async (): Promise<AxiosResponse<ApiResponse<User[]>>> => {
     return apiConnector("GET", admin.GET_ALL_USERS, null, null, null, null);
   },
+  getUserById: async (
+    userId: string
+  ): Promise<AxiosResponse<ApiResponse<User>>> => {
+    return apiConnector(
+      "GET",
+      `${admin.GET_USER_BY_ID}/${userId}`,
+      null,
+      null,
+      null,
+      null
+    );
+  },
   deleteUser: async (userId: string): Promise<AxiosResponse<ApiResponse>> => {
     return apiConnector(
       "DELETE",

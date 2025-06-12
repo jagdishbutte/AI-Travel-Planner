@@ -156,9 +156,24 @@ const deleteUser: RequestHandler = async (req, res) => {
   }
 };
 
+export const getUserByIdForAdmin: RequestHandler = async (req, res) => {
+  const { id } = req.params;
+  try {
+    const user = await User.findById(id, "-password");
+    if (!user) {
+      res.status(404).json({ success: false, message: "User not found" });
+      return;
+    }
+    res.json({ success: true, data: user });
+  } catch (error: any) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
 export const userController = {
   userRegister,
   userLogin,
   getAllUsers,
   deleteUser,
+  getUserByIdForAdmin,
 };
