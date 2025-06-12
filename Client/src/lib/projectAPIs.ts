@@ -64,4 +64,16 @@ export const adminAPI = {
       null
     );
   },
+  getAllTrips: async (): Promise<AxiosResponse> => {
+    const baseUrl =
+      import.meta.env.VITE_API_BASE_URL || "http://localhost:2300";
+    return apiConnector(
+      "GET",
+      `${baseUrl}/admin/trips`,
+      null,
+      null,
+      null,
+      null
+    );
+  },
 };

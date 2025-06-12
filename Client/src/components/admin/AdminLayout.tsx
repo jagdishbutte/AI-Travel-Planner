@@ -1,6 +1,6 @@
 import React from "react";
 import { Outlet, NavLink, Link } from "react-router-dom";
-import { Users, Globe, LayoutDashboard } from "lucide-react";
+import { Users, Globe, LayoutDashboard, Plane } from "lucide-react";
 
 const AdminLayout: React.FC = () => {
   const navLinkClasses =
@@ -36,6 +36,15 @@ const AdminLayout: React.FC = () => {
           >
             <Users className="mr-8" />
             <span>Users</span>
+          </NavLink>
+          <NavLink
+            to="/admin/trips"
+            className={({ isActive }) =>
+              `${navLinkClasses} ${isActive ? activeLinkClasses : ""}`
+            }
+          >
+            <Plane className="mr-8" />
+            <span>Trips</span>
           </NavLink>
           {/* Add other admin links here, e.g., for a dashboard */}
           {/* <NavLink

@@ -1,5 +1,6 @@
 import express from "express";
 import { getDashboardStats } from "../controllers/adminController";
+import { getAllTripsForAdmin } from "../controllers/tripController";
 
 const router = express.Router();
 
@@ -7,5 +8,6 @@ const router = express.Router();
 // Example: router.use(isAuthenticated, isAdmin);
 
 router.get("/stats", getDashboardStats);
+router.get("/trips", getAllTripsForAdmin);
 
 export default router;
