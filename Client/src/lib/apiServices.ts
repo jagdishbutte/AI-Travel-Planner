@@ -1,6 +1,6 @@
 import { apiConnector } from "./apiConnector";
 import { AxiosResponse } from "axios";
-import { auth, preferences, trips, admin } from "./apis";
+import { auth, preferences, trips, admin, profile } from "./apis";
 import { VITE_API_BASE_URL } from "./apiConnections";
 import { User } from "../types";
 
@@ -174,6 +174,39 @@ export const tripAPI = {
       `${VITE_API_BASE_URL}/plan/generate`,
       data,
       null,
+      null,
+      null
+    );
+  },
+};
+
+export const profileAPI = {
+  getProfile: async (
+    token: string
+  ): Promise<AxiosResponse<ApiResponse<User>>> => {
+    return apiConnector(
+      "GET",
+      profile.GET_PROFILE,
+      null,
+      {
+        Authorization: `Bearer ${token}`,
+      },
+      null,
+      null
+    );
+  },
+
+  updateProfile: async (
+    token: string,
+    data: Partial<User>
+  ): Promise<AxiosResponse<ApiResponse<User>>> => {
+    return apiConnector(
+      "PUT",
+      profile.UPDATE_PROFILE,
+      data,
+      {
+        Authorization: `Bearer ${token}`,
+      },
       null,
       null
     );

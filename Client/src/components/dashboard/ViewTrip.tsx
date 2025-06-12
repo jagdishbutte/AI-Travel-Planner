@@ -118,8 +118,8 @@ export default function ViewTrip() {
 
                 if (tripId) {
                     const response = await tripsAPI.getTrip(tripId);
-                    if (response) {
-                        setTrip(response as Trip);
+                    if (response.data) {
+                        setTrip(response.data as unknown as Trip);
                     } else {
                         console.error("Invalid or missing trip data");
                     }

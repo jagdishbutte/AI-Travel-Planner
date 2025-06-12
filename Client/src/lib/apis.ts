@@ -71,6 +71,11 @@ export const trips = {
   DELETE: `${VITE_API_BASE_URL}/trips/deleteTrip`,
 };
 
+export const profile = {
+  GET_PROFILE: `${VITE_API_BASE_URL}/users/userProfile`,
+  UPDATE_PROFILE: `${VITE_API_BASE_URL}/users/userProfile`,
+};
+
 export const admin = {
   GET_ALL_USERS: `${VITE_API_BASE_URL}/users/users`,
   GET_USER_BY_ID: `${VITE_API_BASE_URL}/users/users`,

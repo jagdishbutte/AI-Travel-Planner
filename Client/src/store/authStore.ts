@@ -24,6 +24,7 @@ interface AuthState {
   signOut: () => Promise<void>;
   setOnboardingComplete: (completed: boolean) => void;
   updateUserPreferences: (preferences: User["preferences"]) => void;
+  updateUser: (userData: User) => void;
 }
 // const navigate = useNavigate();
 export const useAuthStore = create<AuthState>()(
@@ -90,6 +91,12 @@ export const useAuthStore = create<AuthState>()(
       updateUserPreferences: (preferences) => {
         set((state) => ({
           user: state.user ? { ...state.user, preferences } : null,
+        }));
+      },
+
+      updateUser: (userData) => {
+        set((state) => ({
+          user: state.user ? { ...state.user, ...userData } : userData,
         }));
       },
     }),
