@@ -24,8 +24,8 @@ const UserDetail: React.FC = () => {
         const response = await tripsAPI.getAllTrips(userId);
         // The response from getAllTrips is an object with a 'data' property containing the array
         setTrips(response.data || []);
-      } catch (err: any) {
-        setError(err.message || "Failed to fetch user trips");
+      } catch (err: unknown) {
+        setError(err instanceof Error ? err.message : "Failed to fetch user trips");
       } finally {
         setIsLoading(false);
       }

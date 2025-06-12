@@ -262,11 +262,11 @@ export default function ViewTrip() {
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-8">
                 <div className="flex items-center justify-between mb-8">
                     <button
-                        onClick={() => navigate(-1)}
+                        onClick={() => navigate("/dashboard")}
                         className="flex items-center text-gray-400 hover:text-white transition-colors"
                     >
                         <ArrowLeft className="h-5 w-5 mr-2" />
-                        Go Back
+                        Back to Dashboard
                     </button>
                     {/* <button
                       onClick={() => setIsShareModalOpen(true)}
