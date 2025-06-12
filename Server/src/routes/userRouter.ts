@@ -8,6 +8,7 @@ router.use(cors());
 router.post("/userRegister", userController.userRegister);
 router.post("/userLogin", userController.userLogin);
 router.get("/users", userController.getAllUsers);
+router.get("/users/:id", userController.getUserByIdForAdmin);
 router.delete("/users/:id", userController.deleteUser);
 
 export default router;

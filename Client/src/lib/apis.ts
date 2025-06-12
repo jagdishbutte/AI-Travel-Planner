@@ -1,6 +1,7 @@
 import { apiConnector } from "./apiConnector";
 import { AxiosResponse } from "axios";
 import { VITE_API_BASE_URL } from "./apiConnections";
+import { Trip } from "../types";
 // import { User } from "../types";
 
 // Common Types
@@ -72,6 +73,7 @@ export const trips = {
 
 export const admin = {
   GET_ALL_USERS: `${VITE_API_BASE_URL}/users/users`,
+  GET_USER_BY_ID: `${VITE_API_BASE_URL}/users/users`,
   DELETE_USER: `${VITE_API_BASE_URL}/users/users`,
 };
 
@@ -105,18 +107,26 @@ export const preferencesAPI = {
 };
 
 export const tripsAPI = {
-  createTrip: async (
-    data: TripRequest
-  ): Promise<AxiosResponse<ApiResponse<Trip>>> => {
+  createTrip: async (data: Trip): Promise<AxiosResponse<ApiResponse<Trip>>> => {
     return apiConnector("POST", trips.CREATE, data, null, null, null);
   },
 
   getAllTrips: async (userId: string): Promise<ApiResponse<Trip[]>> => {
-    return apiConnector("GET", trips.GET_TRIPS, null, null, { userId }, null);
+    const response = await apiConnector(
+      "GET",
+      trips.GET_TRIPS,
+      null,
+      null,
+      { userId },
+      null
+    );
+    return response.data;
   },
 
-  getTrip: async (tripId: string): Promise<Trip> => {
-    const response = await apiConnector(
+  getTrip: async (
+    tripId: string
+  ): Promise<AxiosResponse<ApiResponse<Trip>>> => {
+    return await apiConnector(
       "GET",
       trips.GET_ONE,
       null,
@@ -124,7 +134,6 @@ export const tripsAPI = {
       { tripId },
       null
     );
-    return response.data as Trip;
   },
 
   updateTrip: async (

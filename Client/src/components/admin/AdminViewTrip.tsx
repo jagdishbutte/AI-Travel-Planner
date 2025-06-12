@@ -48,7 +48,7 @@ export default function ViewTrip() {
   const [selectedDay, setSelectedDay] = useState(0);
   const [isHotelListExpanded] = useState(false);
   const [selectedHotel, setSelectedHotel] = useState<string | null>(null);
-  const [isEditSuccess ] = useState(false);
+  const [isEditSuccess] = useState(false);
   const [trip, setTrip] = useState<Trip | null>(null);
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
@@ -65,8 +65,8 @@ export default function ViewTrip() {
 
         if (tripId) {
           const response = await tripsAPI.getTrip(tripId);
-          if (response) {
-            setTrip(response as Trip);
+          if (response.data) {
+            setTrip(response.data as unknown as Trip);
           } else {
             console.error("Invalid or missing trip data");
           }

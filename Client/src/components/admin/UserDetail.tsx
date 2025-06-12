@@ -1,39 +1,43 @@
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-// import { adminAPI } from "../../lib/apiServices";
-import { Trip } from "../../types";
+import { adminAPI } from "../../lib/apiServices";
+import { User, Trip } from "../../types";
 import { tripsAPI } from "../../lib/apis";
 import AdminTripCard from "./AdminTripCard";
-import { useAuthStore } from "../../store/authStore";
-// import { ArrowLeft } from "lucide-react";
+// import { useAuthStore } from "../../store/authStore";
 
 const UserDetail: React.FC = () => {
-  const { userId } = useParams();
+  const { userId } = useParams<{ userId: string }>();
   const navigate = useNavigate();
+  const [user, setUser] = useState<User | null>(null);
   const [trips, setTrips] = useState<Trip[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
-  const { user } = useAuthStore();
 
   useEffect(() => {
     if (!userId) return;
 
-    const fetchUserTrips = async () => {
+    const fetchUserDetails = async () => {
       setIsLoading(true);
       try {
-        const response = await tripsAPI.getAllTrips(userId);
-        // The response from getAllTrips is an object with a 'data' property containing the array
-        setTrips(response.data || []);
+        // console.log("Fetching details for userId:", userId);
+        const userResponse = await adminAPI.getUserById(userId);
+        setUser(userResponse.data.data);
+
+        const tripsResponse = await tripsAPI.getAllTrips(userId);
+        // console.log("Trips API response:", tripsResponse);
+        setTrips(tripsResponse.data || []);
       } catch (err: unknown) {
+        console.error("Error fetching user details:", err);
         setError(
-          err instanceof Error ? err.message : "Failed to fetch user trips"
+          err instanceof Error ? err.message : "Failed to fetch user details"
         );
       } finally {
         setIsLoading(false);
       }
     };
 
-    fetchUserTrips();
+    fetchUserDetails();
   }, [userId]);
 
   if (isLoading) {
@@ -81,6 +85,17 @@ const UserDetail: React.FC = () => {
               {user.location}
             </p>
             <p>
+              <strong className="text-gray-400">Age:</strong> {user.age}
+            </p>
+            <p>
+              <strong className="text-gray-400">Nationality:</strong>{" "}
+              {user.nationality}
+            </p>
+            <p>
+              <strong className="text-gray-400">Occupation:</strong>{" "}
+              {user.occupation}
+            </p>
+            <p>
               <strong className="text-gray-400">Joined:</strong>{" "}
               {new Date(user.createdAt).toLocaleDateString()}
             </p>
@@ -93,23 +108,31 @@ const UserDetail: React.FC = () => {
           </button>
         </div>
       </div>
-      <h2 className="text-3xl font-bold mb-6">
-        Trips for {user?.name || "User"}
-      </h2>
-      {trips.length > 0 ? (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {trips.map((trip) => (
-            <AdminTripCard key={trip._id || trip.id} trip={trip} />
-          ))}
-        </div>
-      ) : (
-        <div className="flex flex-col justify-center items-center">
-          <img src="/no-trip.png" alt="no trips planned" />
-          <p className="text-gray-400 flex justify-center items-center">
-            This user has not planned any trips yet.
-          </p>
-        </div>
-      )}
+      <div className="p-6">
+        <h2 className="text-3xl font-bold">
+          Trips for{" "}
+          <span className="text-blue-400 font-semibold">{user.name}</span>
+        </h2>
+        {trips.length > 0 ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 p-6">
+            {trips.map((trip) => (
+              <AdminTripCard key={trip._id || trip.id} trip={trip} />
+            ))}
+          </div>
+        ) : (
+          <div className="flex flex-col justify-center items-center">
+            <img
+              src="/travel-bag.svg"
+              alt="no trips planned"
+              width="300"
+              height="300"
+            />
+            <p className="text-gray-400 flex justify-center items-center text-lg font-bold">
+              This user has not planned any trips yet.
+            </p>
+          </div>
+        )}
+      </div>
     </div>
   );
 };
