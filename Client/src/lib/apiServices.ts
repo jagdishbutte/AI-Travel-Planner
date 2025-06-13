@@ -5,7 +5,7 @@ import { VITE_API_BASE_URL } from "./apiConnections";
 import { User } from "../types";
 
 // Common Types
-export interface ApiResponse<T = any> {
+export interface ApiResponse<T = unknown> {
   success: boolean;
   message: string;
   data: T;
@@ -72,13 +72,35 @@ export interface TripRequest {
   transportationType: string;
 }
 
+export interface ItineraryItem {
+  day: number;
+  activities: {
+    time: string;
+    description: string;
+    location: string;
+  }[];
+}
+
+export interface WeatherInfo {
+  date: string;
+  temperature: number;
+  condition: string;
+}
+
+export interface AccommodationInfo {
+  name: string;
+  location: string;
+  checkIn: string;
+  checkOut: string;
+}
+
 export interface Trip extends TripRequest {
   id: string;
   title: string;
   status: "planned" | "ongoing" | "completed";
-  itinerary: any[];
-  weather: any[];
-  accommodation: any[];
+  itinerary: ItineraryItem[];
+  weather: WeatherInfo[];
+  accommodation: AccommodationInfo[];
   image: string;
 }
 

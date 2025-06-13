@@ -33,23 +33,22 @@ export const UserProfile = () => {
   const [editedData, setEditedData] = useState<UserProfileData | null>(null);
 
   useEffect(() => {
-    fetchUserProfile();
+      const fetchUserProfile = async () => {
+          if (!user) return;
+
+          try {
+              const response = await profileAPI.getProfile(user.token);
+              const userData = response.data.data as UserProfileData;
+              setProfileData(userData);
+              setEditedData(userData);
+          } catch (error) {
+              console.error("Error fetching profile:", error);
+          } finally {
+              setLoading(false);
+          }
+      };
+      fetchUserProfile();
   }, [user]);
-
-  const fetchUserProfile = async () => {
-    if (!user) return;
-
-    try {
-      const response = await profileAPI.getProfile(user.token);
-      const userData = response.data.data as UserProfileData;
-      setProfileData(userData);
-      setEditedData(userData);
-    } catch (error) {
-      console.error("Error fetching profile:", error);
-    } finally {
-      setLoading(false);
-    }
-  };
 
   const handleSave = async () => {
     if (!editedData || !user) return;

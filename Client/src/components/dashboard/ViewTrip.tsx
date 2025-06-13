@@ -229,7 +229,6 @@ export default function ViewTrip() {
             if (response.data?.success) {
                 setIsEditSuccess(true);
                 setIsEditing(false);
-                console.log("Trip updated:", response.data.data);
                 setTimeout(() => {
                     setIsEditSuccess(false);
                 }, 2000);

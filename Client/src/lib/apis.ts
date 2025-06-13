@@ -5,7 +5,7 @@ import { Trip } from "../types";
 // import { User } from "../types";
 
 // Common Types
-export interface ApiResponse<T = any> {
+export interface ApiResponse<T = unknown> {
   success: boolean;
   message: string;
   data: T;
@@ -143,7 +143,7 @@ export const tripsAPI = {
 
   updateTrip: async (
     tripId: string,
-    data: any
+    data: Partial<Trip>
   ): Promise<AxiosResponse<ApiResponse<Trip>>> => {
     return apiConnector("PUT", trips.UPDATE, data, null, { tripId }, null);
   },
