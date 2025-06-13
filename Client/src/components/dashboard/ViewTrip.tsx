@@ -192,7 +192,7 @@ export default function ViewTrip() {
       food: Coffee,
       accommodation: Hotel,
     } as const;
-    return icons[type] || Camera; 
+    return icons[type] || Camera;
   };
 
   const handleEditTrip = async () => {
@@ -257,11 +257,13 @@ export default function ViewTrip() {
     navigate(`/dashboard/trips/${tripId}/budget`);
   };
 
-  // City and Airport Code Mappings
+  // Enhanced City and Airport Code Mappings with correct IATA codes
   const cityToAirportCode: Record<string, string> = {
     Delhi: "DEL",
+    "New Delhi": "DEL",
     Mumbai: "BOM",
     Bangalore: "BLR",
+    Bengaluru: "BLR",
     Chennai: "MAA",
     Kolkata: "CCU",
     Hyderabad: "HYD",
@@ -269,11 +271,31 @@ export default function ViewTrip() {
     Ahmedabad: "AMD",
     Jaipur: "JAI",
     Lucknow: "LKO",
-    Goa: "GOI",
+    Goa: "GOI", // Correct code for Goa (Dabolim Airport)
+    Panaji: "GOI",
     Kochi: "COK",
+    Cochin: "COK",
     Chandigarh: "IXC",
     Indore: "IDR",
     Bhubaneswar: "BBI",
+    Srinagar: "SXR",
+    Udaipur: "UDR",
+    Jodhpur: "JDH",
+    Varanasi: "VNS",
+    Agra: "AGR",
+    Patna: "PAT",
+    Ranchi: "IXR",
+    Coimbatore: "CJB",
+    Trichy: "TRZ",
+    Madurai: "IXM",
+    Thiruvananthapuram: "TRV",
+    Trivandrum: "TRV",
+    Vijayawada: "VGA",
+    Visakhapatnam: "VTZ",
+    Nagpur: "NAG",
+    Raipur: "RPR",
+    Bhopal: "BHO",
+    Gwalior: "GWL",
   };
 
   const cityToBusInfo: Record<string, { id: string; name: string }> = {
@@ -315,7 +337,6 @@ export default function ViewTrip() {
     hotelName: string,
     location: string
   ): Promise<string | null> => {
-
     const mockPropertyIds: Record<string, string> = {
       "Taj Mahal Hotel Mumbai": "20020609",
       "The Leela Palace New Delhi": "20031011",
@@ -331,14 +352,14 @@ export default function ViewTrip() {
     return propertyId || null;
   };
 
-interface Hotel {
+  interface Hotel {
     name: string;
     location?: {
-        address?: string;
+      address?: string;
     };
-}
+  }
 
-const generateHotelBookingUrl = async (hotel: Hotel) => {
+  const generateHotelBookingUrl = async (hotel: Hotel) => {
     const checkIn = format(new Date(trip!.startDate), "yyyy-MM-dd");
     const checkOut = format(new Date(trip!.endDate), "yyyy-MM-dd");
     const guests = trip!.travelers;
@@ -460,38 +481,77 @@ const generateHotelBookingUrl = async (hotel: Hotel) => {
   };
 
   const getOriginCity = (): string => {
-    // In a real app, this would be determined from user's profile, geolocation, or previous bookings
-    // For now, we'll use a more intelligent approach to determine origin
+    // Try to get user's location from auth store
+    const userLocation = user?.location;
 
-    const userLocation = user?.location; // Get user's location from profile (user is already available in component)
-    const destination = trip!.destination;
+    // Clean and normalize location strings for comparison
+    const normalizeLocation = (location: string) =>
+      location.toLowerCase().trim().replace(/\s+/g, " ");
 
-    // If user has a location in their profile, use that as origin (if different from destination)
-    if (
-      userLocation &&
-      !destination.toLowerCase().includes(userLocation.toLowerCase())
-    ) {
-      return userLocation;
+    // If user has a location and it's different from destination, use it
+    if (userLocation) {
+      const normalizedUserLocation = normalizeLocation(userLocation);
+      const normalizedDestination = normalizeLocation(trip!.destination);
+
+      if (normalizedUserLocation !== normalizedDestination) {
+        return userLocation;
+      }
     }
 
-    // Fallback logic - avoid using the same city as destination
+    // If user's location is same as destination or not available,
+    // try to find a major city close to the destination region
+    const regionBasedCities: Record<string, string[]> = {
+      // North India
+      Delhi: ["Jaipur", "Chandigarh", "Lucknow", "Agra"],
+      Jaipur: ["Delhi", "Ahmedabad", "Lucknow"],
+      Chandigarh: ["Delhi", "Jaipur", "Lucknow"],
+
+      // West India
+      Mumbai: ["Pune", "Ahmedabad", "Nagpur"],
+      Pune: ["Mumbai", "Hyderabad", "Bangalore"],
+      Ahmedabad: ["Mumbai", "Jaipur", "Pune"],
+
+      // South India
+      Bangalore: ["Chennai", "Hyderabad", "Pune"],
+      Chennai: ["Bangalore", "Hyderabad", "Kochi"],
+      Hyderabad: ["Bangalore", "Pune", "Chennai"],
+
+      // East India
+      Kolkata: ["Bhubaneswar", "Patna", "Ranchi"],
+      Bhubaneswar: ["Kolkata", "Hyderabad", "Chennai"],
+    };
+
+    // Try to find a nearby city based on destination region
+    const normalizedDestination = normalizeLocation(trip!.destination);
+    for (const [region, cities] of Object.entries(regionBasedCities)) {
+      if (normalizedDestination.includes(normalizeLocation(region))) {
+        // Return the first city that's not the destination
+        const nearbyCity = cities.find(
+          (city) => normalizeLocation(city) !== normalizedDestination
+        );
+        if (nearbyCity) return nearbyCity;
+      }
+    }
+
+    // If no regional match found, use major cities list (avoiding destination)
     const majorCities = [
-      "Delhi",
+      "Pune", // Default city (first in list)
       "Mumbai",
       "Bangalore",
+      "Delhi",
       "Chennai",
-      "Kolkata",
       "Hyderabad",
-      "Pune",
+      "Kolkata",
+      "Ahmedabad",
+      "Jaipur",
     ];
 
-    // Find a major city that's not the destination
-    const availableOrigins = majorCities.filter(
-      (city) => !destination.toLowerCase().includes(city.toLowerCase())
+    const availableCity = majorCities.find(
+      (city) => normalizeLocation(city) !== normalizedDestination
     );
 
-    // Return the first available major city, or Delhi as ultimate fallback
-    return availableOrigins.length > 0 ? availableOrigins[0] : "Delhi";
+    // Return first available city or Pune as default
+    return availableCity || "Pune";
   };
 
   const handleTransportBooking = (transportType: string) => {
@@ -530,882 +590,775 @@ const generateHotelBookingUrl = async (hotel: Hotel) => {
   };
 
   return (
-      <div
-          className={`min-h-screen mt-12 ${
-              theme === "dark" ? "bg-gray-900" : "bg-white"
-          }`}
-      >
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-8">
-              <div className="flex items-center justify-between mb-8">
-                  <button
-                      onClick={() => navigate("/dashboard")}
-                      className="flex items-center text-gray-400 hover:text-white transition-colors"
-                  >
-                      <ArrowLeft className="h-5 w-5 mr-2" />
-                      Back to Dashboard
-                  </button>
-                  {/* <button
+    <div
+      className={`min-h-screen mt-12 ${
+        theme === "dark" ? "bg-gray-900" : "bg-white"
+      }`}
+    >
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-8">
+        <div className="flex items-center justify-between mb-8">
+          <button
+            onClick={() => navigate("/dashboard")}
+            className="flex items-center text-gray-400 hover:text-white transition-colors"
+          >
+            <ArrowLeft className="h-5 w-5 mr-2" />
+            Back to Dashboard
+          </button>
+          {/* <button
                       onClick={() => setIsShareModalOpen(true)}
                       className="flex items-center gap-2 px-3 py-2 sm:px-4 sm:py-2 hover:bg-gray-700 rounded-md transition-colors"
                   >
                       <Share2 className="h-5 w-5" />
                       Share
                   </button> */}
+        </div>
+        <div className="relative h-64 rounded-xl overflow-hidden mb-8">
+          <div
+            className="absolute inset-0 bg-cover bg-center"
+            style={{
+              backgroundImage: `url(${trip.image})`,
+            }}
+          >
+            <div className="absolute inset-0 bg-gray-900/50 backdrop-blur-xs" />
+          </div>
+          <div className="relative h-full flex flex-col justify-end p-8">
+            <h1 className="text-4xl font-bold mb-2">{trip.title}</h1>
+            <div className="flex items-center space-x-4 text-lg mb-2">
+              <span className="flex items-center">
+                <MapPin className="h-5 w-5 mr-1" />
+                {trip.destination}
+              </span>
+            </div>
+            <div className="flex items-center space-x-4 text-lg">
+              <span className="flex items-center">
+                <Users className="h-5 w-5 mr-1" />
+                {trip.travelers} Travelers
+              </span>
+              <span className="flex items-center">
+                <CalendarDays className="h-5 w-5 mr-1" />{" "}
+                {trip.itinerary.length} days
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-8">
+          <div className="lg:col-span-2 space-y-8">
+            {/* Trip Overview */}
+            <div
+              className={`rounded-xl p-6 ${
+                theme === "dark" ? "bg-gray-800" : "bg-white"
+              } shadow-lg`}
+            >
+              <h2 className="text-xl font-semibold mb-4">Trip Overview</h2>
+              <div className="grid grid-cols-3 gap-4">
+                <div
+                  className="bg-gray-700/50 rounded-lg p-4 cursor-pointer hover:bg-gray-700 transition-colors"
+                  onClick={handleBudgetClick}
+                >
+                  <p className="text-gray-400 text-sm">Budget</p>
+                  <p className="text-xl font-semibold">
+                    ₹{trip.totalCost?.total}
+                    <span className="text-sm text-gray-400 block sm:inline">
+                      /{trip.budget.type === "per_person" ? "person" : "total"}
+                    </span>
+                  </p>
+                </div>
+                <div className="bg-gray-700/50 rounded-lg p-4">
+                  <p className="text-gray-400 text-sm">Duration</p>
+                  <p className="text-xl font-semibold">
+                    {trip.itinerary.length} days
+                  </p>
+                </div>
+                <div className="bg-gray-700/50 rounded-lg p-4">
+                  <p className="text-gray-400 text-sm">Transport</p>
+                  <p className="text-xl font-semibold capitalize">
+                    {trip.transportationType}
+                  </p>
+                </div>
               </div>
-              <div className="relative h-64 rounded-xl overflow-hidden mb-8">
-                  <div
-                      className="absolute inset-0 bg-cover bg-center"
-                      style={{
-                          backgroundImage: `url(${trip.image})`,
-                      }}
+            </div>
+
+            {/* Daily Itinerary */}
+            <div
+              className={`rounded-xl p-6 ${
+                theme === "dark" ? "bg-gray-800" : "bg-white"
+              } shadow-lg`}
+            >
+              <div className="flex justify-between mb-6">
+                <h2 className="text-2xl font-semibold">Daily Itinerary</h2>
+                <div className="flex space-x-2">
+                  <button
+                    className="p-2 hover:bg-gray-700 rounded-lg transition-colors disabled:opacity-50"
+                    disabled={selectedDay === 0}
+                    onClick={() => setSelectedDay(Math.max(0, selectedDay - 1))}
                   >
-                      <div className="absolute inset-0 bg-gray-900/50 backdrop-blur-xs" />
-                  </div>
-                  <div className="relative h-full flex flex-col justify-end p-8">
-                      <h1 className="text-4xl font-bold mb-2">{trip.title}</h1>
-                      <div className="flex items-center space-x-4 text-lg mb-2">
-                          <span className="flex items-center">
-                              <MapPin className="h-5 w-5 mr-1" />
-                              {trip.destination}
-                          </span>
-                      </div>
-                      <div className="flex items-center space-x-4 text-lg">
-                          <span className="flex items-center">
-                              <Users className="h-5 w-5 mr-1" />
-                              {trip.travelers} Travelers
-                          </span>
-                          <span className="flex items-center">
-                              <CalendarDays className="h-5 w-5 mr-1" />{" "}
-                              {trip.itinerary.length} days
-                          </span>
-                      </div>
-                  </div>
-              </div>
-
-              <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-8">
-                  <div className="lg:col-span-2 space-y-8">
-                      {/* Trip Overview */}
-                      <div
-                          className={`rounded-xl p-6 ${
-                              theme === "dark" ? "bg-gray-800" : "bg-white"
-                          } shadow-lg`}
-                      >
-                          <h2 className="text-xl font-semibold mb-4">
-                              Trip Overview
-                          </h2>
-                          <div className="grid grid-cols-3 gap-4">
-                              <div
-                                  className="bg-gray-700/50 rounded-lg p-4 cursor-pointer hover:bg-gray-700 transition-colors"
-                                  onClick={handleBudgetClick}
-                              >
-                                  <p className="text-gray-400 text-sm">
-                                      Budget
-                                  </p>
-                                  <p className="text-xl font-semibold">
-                                      ₹{trip.totalCost?.total}
-                                      <span className="text-sm text-gray-400 block sm:inline">
-                                          /
-                                          {trip.budget.type === "per_person"
-                                              ? "person"
-                                              : "total"}
-                                      </span>
-                                  </p>
-                              </div>
-                              <div className="bg-gray-700/50 rounded-lg p-4">
-                                  <p className="text-gray-400 text-sm">
-                                      Duration
-                                  </p>
-                                  <p className="text-xl font-semibold">
-                                      {trip.itinerary.length} days
-                                  </p>
-                              </div>
-                              <div className="bg-gray-700/50 rounded-lg p-4">
-                                  <p className="text-gray-400 text-sm">
-                                      Transport
-                                  </p>
-                                  <p className="text-xl font-semibold capitalize">
-                                      {trip.transportationType}
-                                  </p>
-                              </div>
-                          </div>
-                      </div>
-
-                      {/* Daily Itinerary */}
-                      <div
-                          className={`rounded-xl p-6 ${
-                              theme === "dark" ? "bg-gray-800" : "bg-white"
-                          } shadow-lg`}
-                      >
-                          <div className="flex justify-between mb-6">
-                              <h2 className="text-2xl font-semibold">
-                                  Daily Itinerary
-                              </h2>
-                              <div className="flex space-x-2">
-                                  <button
-                                      className="p-2 hover:bg-gray-700 rounded-lg transition-colors disabled:opacity-50"
-                                      disabled={selectedDay === 0}
-                                      onClick={() =>
-                                          setSelectedDay(
-                                              Math.max(0, selectedDay - 1)
-                                          )
-                                      }
-                                  >
-                                      Previous Day
-                                  </button>
-                                  <button
-                                      className="p-2 hover:bg-gray-700 rounded-lg transition-colors disabled:opacity-50"
-                                      disabled={
-                                          selectedDay ===
-                                          trip.itinerary.length - 1
-                                      }
-                                      onClick={() =>
-                                          setSelectedDay(
-                                              Math.min(
-                                                  trip.itinerary.length - 1,
-                                                  selectedDay + 1
-                                              )
-                                          )
-                                      }
-                                  >
-                                      Next Day
-                                  </button>
-                              </div>
-                          </div>
-
-                          <div className="flex space-x-2 overflow-x-auto pb-4 mb-6">
-                              {trip.itinerary.map((day, index) => (
-                                  <button
-                                      key={day.date}
-                                      onClick={() => setSelectedDay(index)}
-                                      className={`flex items-center space-x-2 px-4 py-2 rounded-full whitespace-nowrap ${
-                                          selectedDay === index
-                                              ? "bg-blue-500 text-white"
-                                              : "bg-gray-700/50 text-gray-300 hover:bg-gray-700"
-                                      }`}
-                                  >
-                                      <span>Day {index + 1}</span>
-                                      {day.weather && (
-                                          <span className="flex items-center">
-                                              {React.createElement(
-                                                  getWeatherIcon(
-                                                      day.weather.condition
-                                                  ),
-                                                  {
-                                                      className: "h-4 w-4",
-                                                  }
-                                              )}
-                                              <span className="ml-1">
-                                                  {day.weather.temperature}°C
-                                              </span>
-                                          </span>
-                                      )}
-                                  </button>
-                              ))}
-                          </div>
-
-                          <div className="space-y-6">
-                              <h3 className="text-xl font-medium mb-4">
-                                  {formatDate(trip.itinerary[selectedDay].date)}
-                              </h3>
-                              {trip.itinerary[selectedDay].events.map(
-                                  (event, index) => (
-                                      <motion.div
-                                          key={index}
-                                          initial={{ opacity: 0, y: 20 }}
-                                          animate={{ opacity: 1, y: 0 }}
-                                          transition={{ delay: index * 0.1 }}
-                                          className="relative pl-8 pb-8 last:pb-0"
-                                      >
-                                          <div className="absolute left-0 top-0 h-full w-px bg-gray-700">
-                                              <div className="absolute top-0 left-1/2 -translate-x-1/2 w-3 h-3 rounded-full bg-blue-500" />
-                                          </div>
-                                          <div className="bg-gray-700/50 rounded-xl p-4 hover:bg-gray-700/70 transition-colors">
-                                              <div className="flex items-start">
-                                                  {React.createElement(
-                                                      getEventIcon(event.type),
-                                                      {
-                                                          className:
-                                                              "h-6 w-6 text-blue-500 mr-4 flex-shrink-0 mt-1",
-                                                      }
-                                                  )}
-                                                  <div className="flex-1">
-                                                      <div className="flex items-center justify-between mb-2">
-                                                          <h4 className="text-lg font-medium">
-                                                              {event.title}
-                                                          </h4>
-                                                          <span className="text-sm text-gray-400">
-                                                              {event.time}
-                                                          </span>
-                                                      </div>
-                                                      <p className="text-gray-400">
-                                                          {event.description}
-                                                      </p>
-                                                      {event.location && (
-                                                          <p className="text-sm text-gray-500 mt-2">
-                                                              {
-                                                                  event.location
-                                                                      .name
-                                                              }
-                                                          </p>
-                                                      )}
-                                                  </div>
-                                              </div>
-                                          </div>
-                                      </motion.div>
-                                  )
-                              )}
-                          </div>
-                      </div>
-                  </div>
-
-                  {/* Weather Forecast */}
-                  <div
-                      className={`rounded-xl p-6 ${
-                          theme === "dark" ? "bg-gray-800" : "bg-white"
-                      } shadow-lg h-fit`}
+                    Previous Day
+                  </button>
+                  <button
+                    className="p-2 hover:bg-gray-700 rounded-lg transition-colors disabled:opacity-50"
+                    disabled={selectedDay === trip.itinerary.length - 1}
+                    onClick={() =>
+                      setSelectedDay(
+                        Math.min(trip.itinerary.length - 1, selectedDay + 1)
+                      )
+                    }
                   >
-                      <h2 className="text-xl font-semibold mb-4">
-                          Weather Forecast
-                      </h2>
-                      <div className="space-y-3">
-                          {trip.itinerary.map((day, index) => {
-                              const WeatherIcon = getWeatherIcon(
-                                  day.weather.condition
-                              );
-                              return (
-                                  <div
-                                      key={index}
-                                      className={`flex items-center justify-between p-3 rounded-lg ${
-                                          selectedDay === index
-                                              ? "bg-gray-700"
-                                              : "hover:bg-gray-700/50"
-                                      }`}
-                                      onClick={() => setSelectedDay(index)}
-                                  >
-                                      <span className="text-sm">
-                                          Day {index + 1}
-                                      </span>
-                                      <div className="flex items-center">
-                                          <WeatherIcon className="h-5 w-5 text-blue-500 mr-2" />
-                                          <span>
-                                              {day.weather.temperature}°C
-                                          </span>
-                                      </div>
-                                  </div>
-                              );
-                          })}
-                      </div>
-
-                      {/* Hotel Options */}
-                      <div className="mt-8">
-                          <h2 className="text-xl font-semibold mb-4">
-                              Accommodation Options
-                          </h2>
-                          <div className="space-y-4">
-                              {trip.accommodation
-                                  .slice(0, isHotelListExpanded ? undefined : 2)
-                                  .map((hotel) => (
-                                      <motion.div
-                                          key={hotel.id}
-                                          className={`bg-gray-700 rounded-xl overflow-hidden cursor-pointer transform transition-all duration-200 ${
-                                              selectedHotel === hotel.id
-                                                  ? "ring-2 ring-blue-500"
-                                                  : ""
-                                          }`}
-                                          onClick={() =>
-                                              setSelectedHotel(hotel.id)
-                                          }
-                                          whileHover={{ scale: 1.02 }}
-                                      >
-                                          <div className="relative h-48">
-                                              <img
-                                                  src={hotel.image}
-                                                  alt={hotel.name}
-                                                  className="w-full h-full object-cover"
-                                              />
-                                              <div className="absolute top-4 right-4 bg-gray-800 rounded-full px-2 py-1 flex items-center">
-                                                  <Star className="h-4 w-4 text-yellow-400 mr-1" />
-                                                  <span className="text-sm">
-                                                      {hotel.rating}
-                                                  </span>
-                                              </div>
-                                          </div>
-                                          <div className="p-4">
-                                              <div className="flex items-center justify-between mb-2">
-                                                  <h3 className="text-lg font-medium">
-                                                      {hotel.name}
-                                                  </h3>
-                                              </div>
-                                              <p className="text-gray-400 text-sm mb-4">
-                                                  {hotel.description}
-                                              </p>
-                                              <div className="flex flex-wrap gap-2 mb-4">
-                                                  {hotel.amenities.map(
-                                                      (amenity) => (
-                                                          <span
-                                                              key={amenity}
-                                                              className="px-2 py-1 bg-gray-600 rounded-full text-xs text-gray-300"
-                                                          >
-                                                              {amenity}
-                                                          </span>
-                                                      )
-                                                  )}
-                                              </div>
-                                              <div className="flex items-center justify-between">
-                                                  <span className="text-lg font-semibold">
-                                                      ₹
-                                                      {hotel.price.toLocaleString()}
-                                                      <span className="text-sm text-gray-400">
-                                                          /night
-                                                      </span>
-                                                  </span>
-                                                  <button
-                                                      onClick={async (e) => {
-                                                          e.stopPropagation();
-                                                          await handleHotelBooking(
-                                                              hotel
-                                                          );
-                                                      }}
-                                                      className="flex items-center px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
-                                                  >
-                                                      <CreditCard className="h-4 w-4 mr-2" />
-                                                      Book Now
-                                                      <ExternalLink className="h-3 w-3 ml-1" />
-                                                  </button>
-                                              </div>
-                                          </div>
-                                      </motion.div>
-                                  ))}
-                          </div>
-                      </div>
-
-                      {/* Transportation Booking Section */}
-                      <div className="mt-8">
-                          <h2 className="text-xl font-semibold mb-6">
-                              Transportation Booking
-                          </h2>
-                          <div className="space-y-8">
-                              {/* Main Transportation */}
-                              <div className="bg-gray-700 rounded-xl p-6 space-y-6">
-                                  <div className="flex items-start space-x-4">
-                                      {React.createElement(
-                                          getTransportIcon(
-                                              trip.transportationType
-                                          ),
-                                          {
-                                              className:
-                                                  "h-8 w-8 text-blue-500 flex-shrink-0",
-                                          }
-                                      )}
-                                      <div className="flex-1 min-w-0">
-                                          <h3 className="text-lg font-semibold capitalize text-white">
-                                              {trip.transportationType} Booking
-                                              (Round Trip)
-                                          </h3>
-                                          <p className="text-gray-400 text-sm mt-1">
-                                              Book your round trip{" "}
-                                              {trip.transportationType} to{" "}
-                                              {trip.destination}
-                                          </p>
-                                          <div className="flex flex-wrap items-center gap-x-6 gap-y-2 mt-3 text-sm text-gray-300">
-                                              <span className="flex items-center">
-                                                  📅{" "}
-                                                  {formatDate(trip.startDate)} -{" "}
-                                                  {formatDate(trip.endDate)}
-                                              </span>
-                                              <span className="flex items-center">
-                                                  👥 {trip.travelers} passenger
-                                                  {trip.travelers > 1
-                                                      ? "s"
-                                                      : ""}
-                                              </span>
-                                              <span className="flex items-center">
-                                                  📍 Round trip to{" "}
-                                                  {trip.destination}
-                                              </span>
-                                          </div>
-                                      </div>
-                                  </div>
-
-                                  <div className="pt-4">
-                                      <button
-                                          onClick={() =>
-                                              handleTransportBooking(
-                                                  trip.transportationType
-                                              )
-                                          }
-                                          className="flex items-center justify-center px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors font-medium w-full"
-                                      >
-                                          <CreditCard className="h-4 w-4 mr-2" />
-                                          Book{" "}
-                                          {trip.transportationType
-                                              .charAt(0)
-                                              .toUpperCase() +
-                                              trip.transportationType.slice(1)}
-                                          <ExternalLink className="h-3 w-3 ml-2" />
-                                      </button>
-                                  </div>
-                              </div>
-
-                              {/* Alternative Transportation Options */}
-                              <div>
-                                  <h3 className="text-lg font-medium mb-4 text-gray-300">
-                                      Alternative Transportation
-                                  </h3>
-                                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                      {["flight", "train", "bus"]
-                                          .filter(
-                                              (transport) =>
-                                                  transport !==
-                                                  trip.transportationType
-                                          )
-                                          .map((transportType) => (
-                                              <div
-                                                  key={transportType}
-                                                  className="bg-gray-700/50 rounded-xl p-6 border border-gray-600 hover:bg-gray-700/70 transition-colors"
-                                              >
-                                                  <div className="flex items-center space-x-3 mb-4">
-                                                      {React.createElement(
-                                                          getTransportIcon(
-                                                              transportType
-                                                          ),
-                                                          {
-                                                              className:
-                                                                  "h-6 w-6 text-blue-400",
-                                                          }
-                                                      )}
-                                                      <h4 className="text-lg font-semibold capitalize text-gray-200">
-                                                          {transportType}{" "}
-                                                          Booking
-                                                      </h4>
-                                                  </div>
-                                                  <p className="text-sm text-gray-400 mb-4">
-                                                      Alternative option to
-                                                      reach {trip.destination}
-                                                  </p>
-                                                  <div className="space-y-2 mb-4">
-                                                      <div className="flex items-center text-xs text-gray-500">
-                                                          <span>
-                                                              📅 Same dates as
-                                                              main booking
-                                                          </span>
-                                                      </div>
-                                                      <div className="flex items-center text-xs text-gray-500">
-                                                          <span>
-                                                              👥{" "}
-                                                              {trip.travelers}{" "}
-                                                              passenger
-                                                              {trip.travelers >
-                                                              1
-                                                                  ? "s"
-                                                                  : ""}
-                                                          </span>
-                                                      </div>
-                                                  </div>
-                                                  <button
-                                                      onClick={() =>
-                                                          handleTransportBooking(
-                                                              transportType
-                                                          )
-                                                      }
-                                                      className="w-full flex items-center justify-center px-4 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium"
-                                                  >
-                                                      <CreditCard className="h-4 w-4 mr-2" />
-                                                      Book{" "}
-                                                      {transportType
-                                                          .charAt(0)
-                                                          .toUpperCase() +
-                                                          transportType.slice(
-                                                              1
-                                                          )}
-                                                      <ExternalLink className="h-4 w-4 ml-2" />
-                                                  </button>
-                                              </div>
-                                          ))}
-                                  </div>
-                              </div>
-                          </div>
-                      </div>
-                  </div>
+                    Next Day
+                  </button>
+                </div>
               </div>
 
-              {/* Fixed Action Buttons */}
-              <div className="sticky bottom-8 left-0 right-0 flex justify-center z-30 mt-8">
-                  <div className="flex gap-4 rounded-lg">
-                      <button
-                          onClick={() => setIsEditModalOpen(true)}
-                          className="flex items-center gap-2 px-3 py-2 sm:px-4 sm:py-2 bg-blue-600 hover:bg-blue-700 rounded-md transition-colors"
-                      >
-                          <Edit3 className="h-5 w-5" />
-                          Edit Trip
-                      </button>
-                      <button
-                          onClick={() => setIsShareModalOpen(true)}
-                          className="flex items-center gap-2 px-3 py-2 sm:px-4 sm:py-2 bg-green-600 hover:bg-green-700 rounded-md transition-colors"
-                      >
-                          <Share2 className="h-5 w-5" />
-                          Share
-                      </button>
-                      <button
-                          onClick={() => {
-                              setIsSaved(true);
-                              setTimeout(() => {
-                                  setIsSaved(false);
-                              }, 2000);
-                          }}
-                          className="flex items-center gap-2 px-3 py-2 sm:px-4 sm:py-2 bg-purple-600 hover:bg-purple-700 rounded-md transition-colors"
-                      >
-                          <Bookmark className="h-5 w-5" />
-                          Save Trip
-                      </button>
-                  </div>
+              <div className="flex space-x-2 overflow-x-auto pb-4 mb-6">
+                {trip.itinerary.map((day, index) => (
+                  <button
+                    key={day.date}
+                    onClick={() => setSelectedDay(index)}
+                    className={`flex items-center space-x-2 px-4 py-2 rounded-full whitespace-nowrap ${
+                      selectedDay === index
+                        ? "bg-blue-500 text-white"
+                        : "bg-gray-700/50 text-gray-300 hover:bg-gray-700"
+                    }`}
+                  >
+                    <span>Day {index + 1}</span>
+                    {day.weather && (
+                      <span className="flex items-center">
+                        {React.createElement(
+                          getWeatherIcon(day.weather.condition),
+                          {
+                            className: "h-4 w-4",
+                          }
+                        )}
+                        <span className="ml-1">
+                          {day.weather.temperature}°C
+                        </span>
+                      </span>
+                    )}
+                  </button>
+                ))}
               </div>
+
+              <div className="space-y-6">
+                <h3 className="text-xl font-medium mb-4">
+                  {formatDate(trip.itinerary[selectedDay].date)}
+                </h3>
+                {trip.itinerary[selectedDay].events.map((event, index) => (
+                  <motion.div
+                    key={index}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: index * 0.1 }}
+                    className="relative pl-8 pb-8 last:pb-0"
+                  >
+                    <div className="absolute left-0 top-0 h-full w-px bg-gray-700">
+                      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-3 h-3 rounded-full bg-blue-500" />
+                    </div>
+                    <div className="bg-gray-700/50 rounded-xl p-4 hover:bg-gray-700/70 transition-colors">
+                      <div className="flex items-start">
+                        {React.createElement(getEventIcon(event.type), {
+                          className:
+                            "h-6 w-6 text-blue-500 mr-4 flex-shrink-0 mt-1",
+                        })}
+                        <div className="flex-1">
+                          <div className="flex items-center justify-between mb-2">
+                            <h4 className="text-lg font-medium">
+                              {event.title}
+                            </h4>
+                            <span className="text-sm text-gray-400">
+                              {event.time}
+                            </span>
+                          </div>
+                          <p className="text-gray-400">{event.description}</p>
+                          {event.location && (
+                            <p className="text-sm text-gray-500 mt-2">
+                              {event.location.name}
+                            </p>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  </motion.div>
+                ))}
+              </div>
+            </div>
           </div>
 
-          {/* Edit Modal */}
-          <AnimatePresence>
-              {isEditModalOpen && (
-                  <div className="fixed inset-0 bg-gray-900/95 flex items-center justify-center z-50 p-4 overflow-y-auto">
-                      <motion.div
-                          initial={{ opacity: 0, scale: 0.95 }}
-                          animate={{ opacity: 1, scale: 1 }}
-                          exit={{ opacity: 0, scale: 0.95 }}
-                          className="bg-gray-800 rounded-xl p-6 max-w-2xl w-full mx-4 my-8"
-                      >
-                          <div className="flex justify-between items-center mb-6">
-                              <h2 className="text-2xl font-semibold">
-                                  Edit Trip
-                              </h2>
-                              <button
-                                  onClick={() => setIsEditModalOpen(false)}
-                                  className="text-gray-400 hover:text-white"
-                              >
-                                  <X className="h-6 w-6" />
-                              </button>
-                          </div>
-
-                          <div className="space-y-6">
-                              {/* Trip Dates */}
-                              <div className="grid grid-cols-2 gap-4">
-                                  <div>
-                                      <label className="block text-sm font-medium text-gray-300 mb-2">
-                                          Start Date
-                                      </label>
-                                      <input
-                                          type="date"
-                                          value={editForm.startDate}
-                                          onChange={(e) => {
-                                              setEditForm({
-                                                  ...editForm,
-                                                  startDate: e.target.value,
-                                              });
-                                              setErrors((prev) => ({
-                                                  ...prev,
-                                                  dates: "",
-                                              }));
-                                          }}
-                                          className="w-full px-4 py-3 bg-gray-700/50 border border-gray-600 rounded-lg text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent [color-scheme:dark]"
-                                      />
-                                  </div>
-                                  <div>
-                                      <label className="block text-sm font-medium text-gray-300 mb-2">
-                                          End Date
-                                      </label>
-                                      <input
-                                          type="date"
-                                          value={editForm.endDate}
-                                          onChange={(e) => {
-                                              setEditForm({
-                                                  ...editForm,
-                                                  endDate: e.target.value,
-                                              });
-                                              setErrors((prev) => ({
-                                                  ...prev,
-                                                  dates: "",
-                                              }));
-                                          }}
-                                          min={editForm.startDate}
-                                          className="w-full px-4 py-3 bg-gray-700/50 border border-gray-600 rounded-lg text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent [color-scheme:dark]"
-                                      />
-                                  </div>
-                                  {errors.dates && (
-                                      <div className="mt-2 flex items-center text-red-400 text-sm">
-                                          <AlertCircle className="h-4 w-4 mr-1" />
-                                          {errors.dates}
-                                      </div>
-                                  )}
-                              </div>
-
-                              {/* Budget Section */}
-                              <div>
-                                  <label className="block text-sm font-medium text-gray-300 mb-2">
-                                      Budget
-                                  </label>
-                                  <div className="grid grid-cols-2 gap-4">
-                                      <input
-                                          type="number"
-                                          value={editForm.budget.amount}
-                                          onChange={(e) => {
-                                              setEditForm({
-                                                  ...editForm,
-                                                  budget: {
-                                                      ...editForm.budget,
-                                                      amount: Number(
-                                                          e.target.value
-                                                      ),
-                                                  },
-                                              });
-                                              setErrors((prev) => ({
-                                                  ...prev,
-                                                  budget: "",
-                                              }));
-                                          }}
-                                          className={`w-full px-4 py-3 bg-gray-700/50 border ${
-                                              errors.budget
-                                                  ? "border-red-500"
-                                                  : "border-gray-600"
-                                          } rounded-lg text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent`}
-                                          placeholder="Amount"
-                                      />
-                                      <select
-                                          value={editForm.budget.type}
-                                          onChange={(e) =>
-                                              setEditForm({
-                                                  ...editForm,
-                                                  budget: {
-                                                      ...editForm.budget,
-                                                      type: e.target.value as
-                                                          | "per_person"
-                                                          | "total",
-                                                  },
-                                              })
-                                          }
-                                          className="w-full px-4 py-3 bg-gray-700/50 border border-gray-600 rounded-lg text-white"
-                                      >
-                                          <option value="per_person">
-                                              Per Person
-                                          </option>
-                                          <option value="total">Total</option>
-                                      </select>
-                                  </div>
-                                  {errors.budget && (
-                                      <div className="mt-2 flex items-center text-red-400 text-sm">
-                                          <AlertCircle className="h-4 w-4 mr-1" />
-                                          {errors.budget}
-                                      </div>
-                                  )}
-                              </div>
-
-                              {/* Number of Persons */}
-                              <div>
-                                  <label className="block text-sm font-medium text-gray-300 mb-2">
-                                      Number of Travelers
-                                  </label>
-                                  <input
-                                      type="number"
-                                      min="1"
-                                      value={editForm.numberOfPersons}
-                                      onChange={(e) =>
-                                          setEditForm({
-                                              ...editForm,
-                                              numberOfPersons: Number(
-                                                  e.target.value
-                                              ),
-                                          })
-                                      }
-                                      className="w-full px-4 py-3 bg-gray-700/50 border border-gray-600 rounded-lg text-white"
-                                  />
-                              </div>
-
-                              {/* Transportation Type */}
-                              <div>
-                                  <label className="block text-sm font-medium text-gray-300 mb-2">
-                                      Transportation Type
-                                  </label>
-                                  <select
-                                      value={editForm.transportationType}
-                                      onChange={(e) =>
-                                          setEditForm({
-                                              ...editForm,
-                                              transportationType: e.target
-                                                  .value as
-                                                  | "flight"
-                                                  | "train"
-                                                  | "bus",
-                                          })
-                                      }
-                                      className="w-full px-4 py-3 bg-gray-700/50 border border-gray-600 rounded-lg text-white"
-                                  >
-                                      <option value="flight">Flight</option>
-                                      <option value="train">Train</option>
-                                      <option value="bus">Bus</option>
-                                  </select>
-                              </div>
-
-                              {/* AI Prompt */}
-                              <div>
-                                  <label className="block text-sm font-medium text-gray-300 mb-2">
-                                      AI Customization Prompt
-                                  </label>
-                                  <textarea
-                                      value={editForm.aiPrompt}
-                                      onChange={(e) =>
-                                          setEditForm({
-                                              ...editForm,
-                                              aiPrompt: e.target.value,
-                                          })
-                                      }
-                                      placeholder="E.g., Add more adventure activities, focus on local cuisine, include more budget-friendly options..."
-                                      className="w-full px-4 py-3 bg-gray-700/50 border border-gray-600 rounded-lg text-white h-24 resize-none"
-                                  />
-                              </div>
-
-                              <div className="flex justify-end space-x-4 pt-4">
-                                  <button
-                                      onClick={() => setIsEditModalOpen(false)}
-                                      className="px-6 py-3 bg-gray-700 text-white rounded-lg hover:bg-gray-600 transition-colors"
-                                  >
-                                      Cancel
-                                  </button>
-                                  <button
-                                      onClick={handleEditTrip}
-                                      className="px-6 py-3 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
-                                  >
-                                      Save Changes
-                                  </button>
-                              </div>
-                          </div>
-                      </motion.div>
+          {/* Weather Forecast */}
+          <div
+            className={`rounded-xl p-6 ${
+              theme === "dark" ? "bg-gray-800" : "bg-white"
+            } shadow-lg h-fit`}
+          >
+            <h2 className="text-xl font-semibold mb-4">Weather Forecast</h2>
+            <div className="space-y-3">
+              {trip.itinerary.map((day, index) => {
+                const WeatherIcon = getWeatherIcon(day.weather.condition);
+                return (
+                  <div
+                    key={index}
+                    className={`flex items-center justify-between p-3 rounded-lg ${
+                      selectedDay === index
+                        ? "bg-gray-700"
+                        : "hover:bg-gray-700/50"
+                    }`}
+                    onClick={() => setSelectedDay(index)}
+                  >
+                    <span className="text-sm">Day {index + 1}</span>
+                    <div className="flex items-center">
+                      <WeatherIcon className="h-5 w-5 text-blue-500 mr-2" />
+                      <span>{day.weather.temperature}°C</span>
+                    </div>
                   </div>
-              )}
-          </AnimatePresence>
+                );
+              })}
+            </div>
 
-          {(isEditing || isEditSuccess) && (
-              <div className="fixed inset-0 bg-gray-900/95 flex items-center justify-center z-50 p-4 overflow-y-auto">
-                  {isEditSuccess ? (
-                      <div className="text-center py-8">
-                          <div className="text-green-400 mb-4">
-                              <CheckCircle className="h-12 w-12 mx-auto" />
-                          </div>
-                          <p className="text-lg text-green-300">
-                              Trip updated successfully!
-                          </p>
+            {/* Hotel Options */}
+            <div className="mt-8">
+              <h2 className="text-xl font-semibold mb-4">
+                Accommodation Options
+              </h2>
+              <div className="space-y-4">
+                {trip.accommodation
+                  .slice(0, isHotelListExpanded ? undefined : 2)
+                  .map((hotel) => (
+                    <motion.div
+                      key={hotel.id}
+                      className={`bg-gray-700 rounded-xl overflow-hidden cursor-pointer transform transition-all duration-200 ${
+                        selectedHotel === hotel.id ? "ring-2 ring-blue-500" : ""
+                      }`}
+                      onClick={() => setSelectedHotel(hotel.id)}
+                      whileHover={{ scale: 1.02 }}
+                    >
+                      <div className="relative h-48">
+                        <img
+                          src={hotel.image}
+                          alt={hotel.name}
+                          className="w-full h-full object-cover"
+                        />
+                        <div className="absolute top-4 right-4 bg-gray-800 rounded-full px-2 py-1 flex items-center">
+                          <Star className="h-4 w-4 text-yellow-400 mr-1" />
+                          <span className="text-sm">{hotel.rating}</span>
+                        </div>
                       </div>
-                  ) : (
-                      <div className="text-center py-8">
-                          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto mb-4" />
-                          <p className="text-lg text-gray-400">
-                              Updating trip...
-                          </p>
+                      <div className="p-4">
+                        <div className="flex items-center justify-between mb-2">
+                          <h3 className="text-lg font-medium">{hotel.name}</h3>
+                        </div>
+                        <p className="text-gray-400 text-sm mb-4">
+                          {hotel.description}
+                        </p>
+                        <div className="flex flex-wrap gap-2 mb-4">
+                          {hotel.amenities.map((amenity) => (
+                            <span
+                              key={amenity}
+                              className="px-2 py-1 bg-gray-600 rounded-full text-xs text-gray-300"
+                            >
+                              {amenity}
+                            </span>
+                          ))}
+                        </div>
+                        <div className="flex items-center justify-between">
+                          <span className="text-lg font-semibold">
+                            ₹{hotel.price.toLocaleString()}
+                            <span className="text-sm text-gray-400">
+                              /night
+                            </span>
+                          </span>
+                          <button
+                            onClick={async (e) => {
+                              e.stopPropagation();
+                              await handleHotelBooking(hotel);
+                            }}
+                            className="flex items-center px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
+                          >
+                            <CreditCard className="h-4 w-4 mr-2" />
+                            Book Now
+                            <ExternalLink className="h-3 w-3 ml-1" />
+                          </button>
+                        </div>
                       </div>
-                  )}
+                    </motion.div>
+                  ))}
               </div>
-          )}
+            </div>
 
-          {/* Share Modal */}
-          <AnimatePresence>
-              {isShareModalOpen && (
-                  <div className="fixed inset-0 bg-gray-900/95 flex items-center justify-center z-50">
-                      <motion.div
-                          initial={{ opacity: 0, scale: 0.95 }}
-                          animate={{ opacity: 1, scale: 1 }}
-                          exit={{ opacity: 0, scale: 0.95 }}
-                          className="bg-gray-800 rounded-xl p-6 max-w-md w-full mx-4"
-                      >
-                          <div className="flex justify-between items-center mb-6">
-                              <h2 className="text-2xl font-semibold">
-                                  Share Trip
-                              </h2>
-                              <button
-                                  onClick={() => setIsShareModalOpen(false)}
-                                  className="text-gray-400 hover:text-white"
-                              >
-                                  <X className="h-6 w-6" />
-                              </button>
-                          </div>
-
-                          <div className="space-y-6">
-                              <div className="relative">
-                                  <input
-                                      type="text"
-                                      value={window.location.href}
-                                      readOnly
-                                      className="w-full px-4 py-3 bg-gray-700/50 border border-gray-600 rounded-lg text-white pr-24"
-                                  />
-                                  <button
-                                      onClick={handleCopyLink}
-                                      className="absolute right-2 top-1/2 -translate-y-1/2 px-4 py-1 bg-gray-600 text-white rounded-md hover:bg-gray-500 transition-colors flex items-center"
-                                  >
-                                      {isLinkCopied ? (
-                                          <>
-                                              <Check className="h-4 w-4 mr-1" />
-                                              Copied!
-                                          </>
-                                      ) : (
-                                          <>
-                                              <Copy className="h-4 w-4 mr-1" />
-                                              Copy
-                                          </>
-                                      )}
-                                  </button>
-                              </div>
-
-                              <div className="grid grid-cols-3 gap-4">
-                                  <button className="flex flex-col items-center justify-center p-4 bg-gray-700/50 rounded-lg hover:bg-gray-700 transition-colors">
-                                      <Facebook className="h-6 w-6 text-blue-500 mb-2" />
-                                      <span className="text-sm">Facebook</span>
-                                  </button>
-                                  <button className="flex flex-col items-center justify-center p-4 bg-gray-700/50 rounded-lg hover:bg-gray-700 transition-colors">
-                                      <Twitter className="h-6 w-6 text-blue-400 mb-2" />
-                                      <span className="text-sm">Twitter</span>
-                                  </button>
-                                  <button className="flex flex-col items-center justify-center p-4 bg-gray-700/50 rounded-lg hover:bg-gray-700 transition-colors">
-                                      <MessageCircle className="h-6 w-6 text-green-500 mb-2" />
-                                      <span className="text-sm">WhatsApp</span>
-                                  </button>
-                              </div>
-
-                              <div className="pt-4 border-t border-gray-700">
-                                  <button className="w-full flex items-center justify-center px-4 py-3 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors">
-                                      <LinkIcon className="h-5 w-5 mr-2" />
-                                      Share Link
-                                  </button>
-                              </div>
-                          </div>
-                      </motion.div>
+            {/* Transportation Booking Section */}
+            <div className="mt-8">
+              <h2 className="text-xl font-semibold mb-6">
+                Transportation Booking
+              </h2>
+              <div className="space-y-8">
+                {/* Main Transportation */}
+                <div className="bg-gray-700 rounded-xl p-6 space-y-6">
+                  <div className="flex items-start space-x-4">
+                    {React.createElement(
+                      getTransportIcon(trip.transportationType),
+                      {
+                        className: "h-8 w-8 text-blue-500 flex-shrink-0",
+                      }
+                    )}
+                    <div className="flex-1 min-w-0">
+                      <h3 className="text-lg font-semibold capitalize text-white">
+                        {trip.transportationType} Booking (Round Trip)
+                      </h3>
+                      <p className="text-gray-400 text-sm mt-1">
+                        Book your round trip {trip.transportationType} to{" "}
+                        {trip.destination}
+                      </p>
+                      <div className="flex flex-wrap items-center gap-x-6 gap-y-2 mt-3 text-sm text-gray-300">
+                        <span className="flex items-center">
+                          📅 {formatDate(trip.startDate)} -{" "}
+                          {formatDate(trip.endDate)}
+                        </span>
+                        <span className="flex items-center">
+                          👥 {trip.travelers} passenger
+                          {trip.travelers > 1 ? "s" : ""}
+                        </span>
+                        <span className="flex items-center">
+                          📍 Round trip to {trip.destination}
+                        </span>
+                      </div>
+                    </div>
                   </div>
-              )}
-          </AnimatePresence>
 
-          {/* Save Confirmation Toast */}
-          {isSaved && (
-              <div className="fixed bottom-24 left-1/2 duration-500 transform -translate-x-1/2 bg-green-600 text-white px-4 py-2 rounded-md shadow-lg animate-fade-in">
-                  Trip saved successfully!
+                  <div className="pt-4">
+                    <button
+                      onClick={() =>
+                        handleTransportBooking(trip.transportationType)
+                      }
+                      className="flex items-center justify-center px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors font-medium w-full"
+                    >
+                      <CreditCard className="h-4 w-4 mr-2" />
+                      Book{" "}
+                      {trip.transportationType.charAt(0).toUpperCase() +
+                        trip.transportationType.slice(1)}
+                      <ExternalLink className="h-3 w-3 ml-2" />
+                    </button>
+                  </div>
+                </div>
+
+                {/* Alternative Transportation Options */}
+                <div>
+                  <h3 className="text-lg font-medium mb-4 text-gray-300">
+                    Alternative Transportation
+                  </h3>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    {["flight", "train", "bus"]
+                      .filter(
+                        (transport) => transport !== trip.transportationType
+                      )
+                      .map((transportType) => (
+                        <div
+                          key={transportType}
+                          className="bg-gray-700/50 rounded-xl p-4 border border-gray-600 hover:bg-gray-700/70 transition-colors"
+                        >
+                          <div className="flex items-center space-x-3 mb-4">
+                            {React.createElement(
+                              getTransportIcon(transportType),
+                              {
+                                className: "h-6 w-6 text-blue-400",
+                              }
+                            )}
+                            <h4 className="text-lg font-semibold capitalize text-gray-200">
+                              {transportType} Booking
+                            </h4>
+                          </div>
+                          <p className="text-sm text-gray-400 mb-4">
+                            Alternative option to reach {trip.destination}
+                          </p>
+                          <div className="space-y-2 mb-4">
+                            <div className="flex items-center text-xs text-gray-500">
+                              <span>📅 Same dates as main booking</span>
+                            </div>
+                            <div className="flex items-center text-xs text-gray-500">
+                              <span>
+                                👥 {trip.travelers} passenger
+                                {trip.travelers > 1 ? "s" : ""}
+                              </span>
+                            </div>
+                          </div>
+                          <button
+                            onClick={() =>
+                              handleTransportBooking(transportType)
+                            }
+                            className="w-full flex items-center justify-center px-2 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium"
+                          >
+                            {/* <CreditCard className="h-4 w-4 mr-2" /> */}
+                            Book{" "}
+                            {transportType.charAt(0).toUpperCase() +
+                              transportType.slice(1)}
+                            <ExternalLink className="h-4 w-4 ml-1" />
+                          </button>
+                        </div>
+                      ))}
+                  </div>
+                </div>
               </div>
-          )}
+            </div>
+          </div>
+        </div>
 
-          {/* Booking Notification Toast */}
-          {bookingNotification.type && (
-              <motion.div
-                  initial={{ opacity: 0, y: 50 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: 50 }}
-                  className={`fixed bottom-24 left-1/2 transform -translate-x-1/2 px-6 py-3 rounded-lg shadow-lg text-white ${
-                      bookingNotification.type === "hotel"
-                          ? "bg-blue-600"
-                          : "bg-green-600"
-                  }`}
-              >
-                  <div className="flex items-center space-x-2">
-                      {bookingNotification.type === "hotel" ? (
-                          <Hotel className="h-5 w-5" />
-                      ) : (
-                          <Plane className="h-5 w-5" />
-                      )}
-                      <span>{bookingNotification.message}</span>
-                  </div>
-              </motion.div>
-          )}
+        {/* Fixed Action Buttons */}
+        <div className="sticky bottom-8 left-0 right-0 flex justify-center z-30 mt-8">
+          <div className="flex gap-4 rounded-lg">
+            <button
+              onClick={() => setIsEditModalOpen(true)}
+              className="flex items-center gap-2 px-3 py-2 sm:px-4 sm:py-2 bg-blue-600 hover:bg-blue-700 rounded-md transition-colors"
+            >
+              <Edit3 className="h-5 w-5" />
+              Edit Trip
+            </button>
+            <button
+              onClick={() => setIsShareModalOpen(true)}
+              className="flex items-center gap-2 px-3 py-2 sm:px-4 sm:py-2 bg-green-600 hover:bg-green-700 rounded-md transition-colors"
+            >
+              <Share2 className="h-5 w-5" />
+              Share
+            </button>
+            <button
+              onClick={() => {
+                setIsSaved(true);
+                setTimeout(() => {
+                  setIsSaved(false);
+                }, 2000);
+              }}
+              className="flex items-center gap-2 px-3 py-2 sm:px-4 sm:py-2 bg-purple-600 hover:bg-purple-700 rounded-md transition-colors"
+            >
+              <Bookmark className="h-5 w-5" />
+              Save Trip
+            </button>
+          </div>
+        </div>
       </div>
+
+      {/* Edit Modal */}
+      <AnimatePresence>
+        {isEditModalOpen && (
+          <div className="fixed inset-0 bg-gray-900/95 flex items-center justify-center z-50 p-4 overflow-y-auto">
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.95 }}
+              className="bg-gray-800 rounded-xl p-6 max-w-2xl w-full mx-4 my-8"
+            >
+              <div className="flex justify-between items-center mb-6">
+                <h2 className="text-2xl font-semibold">Edit Trip</h2>
+                <button
+                  onClick={() => setIsEditModalOpen(false)}
+                  className="text-gray-400 hover:text-white"
+                >
+                  <X className="h-6 w-6" />
+                </button>
+              </div>
+
+              <div className="space-y-6">
+                {/* Trip Dates */}
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-300 mb-2">
+                      Start Date
+                    </label>
+                    <input
+                      type="date"
+                      value={editForm.startDate}
+                      onChange={(e) => {
+                        setEditForm({
+                          ...editForm,
+                          startDate: e.target.value,
+                        });
+                        setErrors((prev) => ({
+                          ...prev,
+                          dates: "",
+                        }));
+                      }}
+                      className="w-full px-4 py-3 bg-gray-700/50 border border-gray-600 rounded-lg text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent [color-scheme:dark]"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-300 mb-2">
+                      End Date
+                    </label>
+                    <input
+                      type="date"
+                      value={editForm.endDate}
+                      onChange={(e) => {
+                        setEditForm({
+                          ...editForm,
+                          endDate: e.target.value,
+                        });
+                        setErrors((prev) => ({
+                          ...prev,
+                          dates: "",
+                        }));
+                      }}
+                      min={editForm.startDate}
+                      className="w-full px-4 py-3 bg-gray-700/50 border border-gray-600 rounded-lg text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent [color-scheme:dark]"
+                    />
+                  </div>
+                  {errors.dates && (
+                    <div className="mt-2 flex items-center text-red-400 text-sm">
+                      <AlertCircle className="h-4 w-4 mr-1" />
+                      {errors.dates}
+                    </div>
+                  )}
+                </div>
+
+                {/* Budget Section */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-300 mb-2">
+                    Budget
+                  </label>
+                  <div className="grid grid-cols-2 gap-4">
+                    <input
+                      type="number"
+                      value={editForm.budget.amount}
+                      onChange={(e) => {
+                        setEditForm({
+                          ...editForm,
+                          budget: {
+                            ...editForm.budget,
+                            amount: Number(e.target.value),
+                          },
+                        });
+                        setErrors((prev) => ({
+                          ...prev,
+                          budget: "",
+                        }));
+                      }}
+                      className={`w-full px-4 py-3 bg-gray-700/50 border ${
+                        errors.budget ? "border-red-500" : "border-gray-600"
+                      } rounded-lg text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent`}
+                      placeholder="Amount"
+                    />
+                    <select
+                      value={editForm.budget.type}
+                      onChange={(e) =>
+                        setEditForm({
+                          ...editForm,
+                          budget: {
+                            ...editForm.budget,
+                            type: e.target.value as "per_person" | "total",
+                          },
+                        })
+                      }
+                      className="w-full px-4 py-3 bg-gray-700/50 border border-gray-600 rounded-lg text-white"
+                    >
+                      <option value="per_person">Per Person</option>
+                      <option value="total">Total</option>
+                    </select>
+                  </div>
+                  {errors.budget && (
+                    <div className="mt-2 flex items-center text-red-400 text-sm">
+                      <AlertCircle className="h-4 w-4 mr-1" />
+                      {errors.budget}
+                    </div>
+                  )}
+                </div>
+
+                {/* Number of Persons */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-300 mb-2">
+                    Number of Travelers
+                  </label>
+                  <input
+                    type="number"
+                    min="1"
+                    value={editForm.numberOfPersons}
+                    onChange={(e) =>
+                      setEditForm({
+                        ...editForm,
+                        numberOfPersons: Number(e.target.value),
+                      })
+                    }
+                    className="w-full px-4 py-3 bg-gray-700/50 border border-gray-600 rounded-lg text-white"
+                  />
+                </div>
+
+                {/* Transportation Type */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-300 mb-2">
+                    Transportation Type
+                  </label>
+                  <select
+                    value={editForm.transportationType}
+                    onChange={(e) =>
+                      setEditForm({
+                        ...editForm,
+                        transportationType: e.target.value as
+                          | "flight"
+                          | "train"
+                          | "bus",
+                      })
+                    }
+                    className="w-full px-4 py-3 bg-gray-700/50 border border-gray-600 rounded-lg text-white"
+                  >
+                    <option value="flight">Flight</option>
+                    <option value="train">Train</option>
+                    <option value="bus">Bus</option>
+                  </select>
+                </div>
+
+                {/* AI Prompt */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-300 mb-2">
+                    AI Customization Prompt
+                  </label>
+                  <textarea
+                    value={editForm.aiPrompt}
+                    onChange={(e) =>
+                      setEditForm({
+                        ...editForm,
+                        aiPrompt: e.target.value,
+                      })
+                    }
+                    placeholder="E.g., Add more adventure activities, focus on local cuisine, include more budget-friendly options..."
+                    className="w-full px-4 py-3 bg-gray-700/50 border border-gray-600 rounded-lg text-white h-24 resize-none"
+                  />
+                </div>
+
+                <div className="flex justify-end space-x-4 pt-4">
+                  <button
+                    onClick={() => setIsEditModalOpen(false)}
+                    className="px-6 py-3 bg-gray-700 text-white rounded-lg hover:bg-gray-600 transition-colors"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    onClick={handleEditTrip}
+                    className="px-6 py-3 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
+                  >
+                    Save Changes
+                  </button>
+                </div>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+
+      {(isEditing || isEditSuccess) && (
+        <div className="fixed inset-0 bg-gray-900/95 flex items-center justify-center z-50 p-4 overflow-y-auto">
+          {isEditSuccess ? (
+            <div className="text-center py-8">
+              <div className="text-green-400 mb-4">
+                <CheckCircle className="h-12 w-12 mx-auto" />
+              </div>
+              <p className="text-lg text-green-300">
+                Trip updated successfully!
+              </p>
+            </div>
+          ) : (
+            <div className="text-center py-8">
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto mb-4" />
+              <p className="text-lg text-gray-400">Updating trip...</p>
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Share Modal */}
+      <AnimatePresence>
+        {isShareModalOpen && (
+          <div className="fixed inset-0 bg-gray-900/95 flex items-center justify-center z-50">
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.95 }}
+              className="bg-gray-800 rounded-xl p-6 max-w-md w-full mx-4"
+            >
+              <div className="flex justify-between items-center mb-6">
+                <h2 className="text-2xl font-semibold">Share Trip</h2>
+                <button
+                  onClick={() => setIsShareModalOpen(false)}
+                  className="text-gray-400 hover:text-white"
+                >
+                  <X className="h-6 w-6" />
+                </button>
+              </div>
+
+              <div className="space-y-6">
+                <div className="relative">
+                  <input
+                    type="text"
+                    value={window.location.href}
+                    readOnly
+                    className="w-full px-4 py-3 bg-gray-700/50 border border-gray-600 rounded-lg text-white pr-24"
+                  />
+                  <button
+                    onClick={handleCopyLink}
+                    className="absolute right-2 top-1/2 -translate-y-1/2 px-4 py-1 bg-gray-600 text-white rounded-md hover:bg-gray-500 transition-colors flex items-center"
+                  >
+                    {isLinkCopied ? (
+                      <>
+                        <Check className="h-4 w-4 mr-1" />
+                        Copied!
+                      </>
+                    ) : (
+                      <>
+                        <Copy className="h-4 w-4 mr-1" />
+                        Copy
+                      </>
+                    )}
+                  </button>
+                </div>
+
+                <div className="grid grid-cols-3 gap-4">
+                  <button className="flex flex-col items-center justify-center p-4 bg-gray-700/50 rounded-lg hover:bg-gray-700 transition-colors">
+                    <Facebook className="h-6 w-6 text-blue-500 mb-2" />
+                    <span className="text-sm">Facebook</span>
+                  </button>
+                  <button className="flex flex-col items-center justify-center p-4 bg-gray-700/50 rounded-lg hover:bg-gray-700 transition-colors">
+                    <Twitter className="h-6 w-6 text-blue-400 mb-2" />
+                    <span className="text-sm">Twitter</span>
+                  </button>
+                  <button className="flex flex-col items-center justify-center p-4 bg-gray-700/50 rounded-lg hover:bg-gray-700 transition-colors">
+                    <MessageCircle className="h-6 w-6 text-green-500 mb-2" />
+                    <span className="text-sm">WhatsApp</span>
+                  </button>
+                </div>
+
+                <div className="pt-4 border-t border-gray-700">
+                  <button className="w-full flex items-center justify-center px-4 py-3 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors">
+                    <LinkIcon className="h-5 w-5 mr-2" />
+                    Share Link
+                  </button>
+                </div>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+
+      {/* Save Confirmation Toast */}
+      {isSaved && (
+        <div className="fixed bottom-24 left-1/2 duration-500 transform -translate-x-1/2 bg-green-600 text-white px-4 py-2 rounded-md shadow-lg animate-fade-in">
+          Trip saved successfully!
+        </div>
+      )}
+
+      {/* Booking Notification Toast */}
+      {bookingNotification.type && (
+        <motion.div
+          initial={{ opacity: 0, y: 50 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: 50 }}
+          className={`fixed bottom-24 left-1/2 transform -translate-x-1/2 px-6 py-3 rounded-lg shadow-lg text-white ${
+            bookingNotification.type === "hotel"
+              ? "bg-blue-600"
+              : "bg-green-600"
+          }`}
+        >
+          <div className="flex items-center space-x-2">
+            {bookingNotification.type === "hotel" ? (
+              <Hotel className="h-5 w-5" />
+            ) : (
+              <Plane className="h-5 w-5" />
+            )}
+            <span>{bookingNotification.message}</span>
+          </div>
+        </motion.div>
+      )}
+    </div>
   );
 }
