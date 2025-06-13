@@ -130,7 +130,7 @@ export const tripsAPI = {
 
   getTrip: async (
     tripId: string
-  ): Promise<AxiosResponse<ApiResponse<Trip>>> => {
+  ): Promise<AxiosResponse<Trip>> => {
     return await apiConnector(
       "GET",
       trips.GET_ONE,

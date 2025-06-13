@@ -659,9 +659,9 @@ export default function ViewTrip() {
                   <p className="text-gray-400 text-sm">Budget</p>
                   <p className="text-xl font-semibold">
                     ₹{trip.totalCost?.total}
-                    {/* <span className="text-sm text-gray-400 block sm:inline">
+                    <span className="text-sm text-gray-400 block sm:inline">
                       /{trip.budget.type === "per_person" ? "person" : "total"}
-                    </span> */}
+                    </span>
                   </p>
                 </div>
                 <div className="bg-gray-700/50 rounded-lg p-4">
@@ -823,7 +823,7 @@ export default function ViewTrip() {
                   .slice(0, isHotelListExpanded ? undefined : 2)
                   .map((hotel) => (
                     <motion.div
-                      key={hotel.id}
+                      key={hotel.name}
                       className={`bg-gray-700 rounded-xl overflow-hidden cursor-pointer transform transition-all duration-200 ${
                         selectedHotel === hotel.id ? "ring-2 ring-blue-500" : ""
                       }`}
