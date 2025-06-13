@@ -5,7 +5,7 @@ import { Trip } from "../types";
 // import { User } from "../types";
 
 // Common Types
-export interface ApiResponse<T = any> {
+export interface ApiResponse<T = unknown> {
   success: boolean;
   message: string;
   data: T;
@@ -69,6 +69,11 @@ export const trips = {
   GET_ONE: `${VITE_API_BASE_URL}/trips/getTrip`,
   UPDATE: `${VITE_API_BASE_URL}/plan/updateTrip`,
   DELETE: `${VITE_API_BASE_URL}/trips/deleteTrip`,
+};
+
+export const profile = {
+  GET_PROFILE: `${VITE_API_BASE_URL}/users/userProfile`,
+  UPDATE_PROFILE: `${VITE_API_BASE_URL}/users/userProfile`,
 };
 
 export const admin = {
@@ -138,7 +143,7 @@ export const tripsAPI = {
 
   updateTrip: async (
     tripId: string,
-    data: any
+    data: Partial<Trip>
   ): Promise<AxiosResponse<ApiResponse<Trip>>> => {
     return apiConnector("PUT", trips.UPDATE, data, null, { tripId }, null);
   },

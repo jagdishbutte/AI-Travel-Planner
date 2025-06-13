@@ -6,7 +6,6 @@ import mongoose, { Types } from "mongoose";
 export const getUserTrips: RequestHandler = async (req, res): Promise<void> => {
   try {
     const userId = req.query.userId;
-    console.log("Fetching trips for userId:", userId);
 
     if (!userId) {
       res.status(400).json({ error: "userId is required" });
@@ -16,8 +15,6 @@ export const getUserTrips: RequestHandler = async (req, res): Promise<void> => {
     const trips = await Trip.find({
       user: new Types.ObjectId(userId as string),
     }).sort({ createdAt: -1 });
-
-    console.log(`Found ${trips.length} trips for userId:`, userId);
 
     res.json({
       success: true,

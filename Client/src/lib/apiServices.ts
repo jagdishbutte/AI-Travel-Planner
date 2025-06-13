@@ -1,11 +1,11 @@
 import { apiConnector } from "./apiConnector";
 import { AxiosResponse } from "axios";
-import { auth, preferences, trips, admin } from "./apis";
+import { auth, preferences, trips, admin, profile } from "./apis";
 import { VITE_API_BASE_URL } from "./apiConnections";
 import { User } from "../types";
 
 // Common Types
-export interface ApiResponse<T = any> {
+export interface ApiResponse<T = unknown> {
   success: boolean;
   message: string;
   data: T;
@@ -72,13 +72,35 @@ export interface TripRequest {
   transportationType: string;
 }
 
+export interface ItineraryItem {
+  day: number;
+  activities: {
+    time: string;
+    description: string;
+    location: string;
+  }[];
+}
+
+export interface WeatherInfo {
+  date: string;
+  temperature: number;
+  condition: string;
+}
+
+export interface AccommodationInfo {
+  name: string;
+  location: string;
+  checkIn: string;
+  checkOut: string;
+}
+
 export interface Trip extends TripRequest {
   id: string;
   title: string;
   status: "planned" | "ongoing" | "completed";
-  itinerary: any[];
-  weather: any[];
-  accommodation: any[];
+  itinerary: ItineraryItem[];
+  weather: WeatherInfo[];
+  accommodation: AccommodationInfo[];
   image: string;
 }
 
@@ -174,6 +196,39 @@ export const tripAPI = {
       `${VITE_API_BASE_URL}/plan/generate`,
       data,
       null,
+      null,
+      null
+    );
+  },
+};
+
+export const profileAPI = {
+  getProfile: async (
+    token: string
+  ): Promise<AxiosResponse<ApiResponse<User>>> => {
+    return apiConnector(
+      "GET",
+      profile.GET_PROFILE,
+      null,
+      {
+        Authorization: `Bearer ${token}`,
+      },
+      null,
+      null
+    );
+  },
+
+  updateProfile: async (
+    token: string,
+    data: Partial<User>
+  ): Promise<AxiosResponse<ApiResponse<User>>> => {
+    return apiConnector(
+      "PUT",
+      profile.UPDATE_PROFILE,
+      data,
+      {
+        Authorization: `Bearer ${token}`,
+      },
       null,
       null
     );

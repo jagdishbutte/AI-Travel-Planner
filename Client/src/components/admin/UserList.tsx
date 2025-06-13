@@ -35,7 +35,7 @@ const UserList: React.FC = () => {
   }, []);
 
   const handleDeleteUser = async () => {
-    if (!userToDelete) return;
+    if (!userToDelete || !userToDelete._id) return;
 
     try {
       await adminAPI.deleteUser(userToDelete._id);

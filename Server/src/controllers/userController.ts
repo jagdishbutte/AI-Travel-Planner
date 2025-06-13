@@ -170,10 +170,144 @@ export const getUserByIdForAdmin: RequestHandler = async (req, res) => {
   }
 };
 
+export const getUserProfile: RequestHandler = async (req, res) => {
+  try {
+    const token = req.headers.authorization?.split(" ")[1];
+    if (!token) {
+      res.status(401).json({ success: false, message: "No token provided" });
+      return;
+    }
+
+    const decoded = jwt.verify(token, process.env.JWT_SECRET as string) as any;
+    const userId = decoded.id;
+
+    const user = await User.findById(userId, "-password").populate(
+      "preferences"
+    );
+    if (!user) {
+      res.status(404).json({ success: false, message: "User not found" });
+      return;
+    }
+
+    const preferences = await Preferences.findOne({ userId: user._id });
+
+    const defaultPreferences = {
+      travelStyle: [],
+      destinations: [],
+      accommodation: [],
+      transportation: [],
+      activities: [],
+      budget: [],
+      tripLength: [],
+    };
+
+    const userProfile = {
+      ...user.toObject(),
+      preferences: preferences
+        ? {
+            travelStyle: preferences.travelStyle || [],
+            destinations: preferences.destinations || [],
+            accommodation: preferences.accommodation || [],
+            transportation: preferences.transportation || [],
+            activities: preferences.activities || [],
+            budget: preferences.budget || [],
+            tripLength: preferences.tripLength || [],
+          }
+        : defaultPreferences,
+    };
+
+    res.json({ success: true, data: userProfile });
+  } catch (error: any) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+export const updateUserProfile: RequestHandler = async (req, res) => {
+  try {
+    const token = req.headers.authorization?.split(" ")[1];
+    if (!token) {
+      res.status(401).json({ success: false, message: "No token provided" });
+      return;
+    }
+
+    const decoded = jwt.verify(token, process.env.JWT_SECRET as string) as any;
+    const userId = decoded.id;
+
+    const {
+      name,
+      age,
+      mobile,
+      location,
+      nationality,
+      occupation,
+      passportNumber,
+      preferences,
+    } = req.body;
+
+    // Update user information
+    const updatedUser = await User.findByIdAndUpdate(
+      userId,
+      {
+        name,
+        age,
+        mobile,
+        location,
+        nationality,
+        occupation,
+        passportNumber,
+      },
+      { new: true, select: "-password" }
+    );
+
+    if (!updatedUser) {
+      res.status(404).json({ success: false, message: "User not found" });
+      return;
+    }
+
+    // Update or create preferences
+    let updatedPreferences = await Preferences.findOneAndUpdate(
+      { userId: userId },
+      {
+        travelStyle: preferences?.travelStyle || [],
+        destinations: preferences?.destinations || [],
+        accommodation: preferences?.accommodation || [],
+        transportation: preferences?.transportation || [],
+        activities: preferences?.activities || [],
+        budget: preferences?.budget || [],
+        tripLength: preferences?.tripLength || [],
+      },
+      { new: true, upsert: true }
+    );
+
+    const userProfile = {
+      ...updatedUser.toObject(),
+      preferences: {
+        travelStyle: updatedPreferences.travelStyle || [],
+        destinations: updatedPreferences.destinations || [],
+        accommodation: updatedPreferences.accommodation || [],
+        transportation: updatedPreferences.transportation || [],
+        activities: updatedPreferences.activities || [],
+        budget: updatedPreferences.budget || [],
+        tripLength: updatedPreferences.tripLength || [],
+      },
+    };
+
+    res.json({
+      success: true,
+      message: "Profile updated successfully",
+      data: userProfile,
+    });
+  } catch (error: any) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
 export const userController = {
   userRegister,
   userLogin,
   getAllUsers,
   deleteUser,
   getUserByIdForAdmin,
+  getUserProfile,
+  updateUserProfile,
 };
