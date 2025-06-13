@@ -26,7 +26,7 @@ export const TripBudget = () => {
       const fetchTrip = async () => {
           try {
               const response = await tripsAPI.getTrip(tripId as string);
-              setTrip(response as Trip);
+              setTrip(response.data);
           } catch (err) {
               console.error("Failed to fetch trip:", err);
           } finally {
