@@ -659,9 +659,19 @@ export default function ViewTrip() {
                   <p className="text-gray-400 text-sm">Budget</p>
                   <p className="text-xl font-semibold">
                     ₹{trip.totalCost?.total}
-                    <span className="text-sm text-gray-400 block sm:inline">
-                      /{trip.budget.type === "per_person" ? "person" : "total"}
-                    </span>
+                    {trip.budget.type === "per_person" ? (
+                      <span className="text-sm text-gray-400 block sm:inline">
+                        /person
+                      </span>
+                    ) : trip.budget.duration === "per_day" ? (
+                      <span className="text-sm text-gray-400 block sm:inline">
+                        /day (total)
+                      </span>
+                    ) : (
+                      <span className="text-sm text-gray-400 block sm:inline">
+                        total for entire trip
+                      </span>
+                    )}
                   </p>
                 </div>
                 <div className="bg-gray-700/50 rounded-lg p-4">
@@ -1131,22 +1141,42 @@ export default function ViewTrip() {
                       } rounded-lg text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent`}
                       placeholder="Amount"
                     />
-                    <select
-                      value={editForm.budget.type}
-                      onChange={(e) =>
-                        setEditForm({
-                          ...editForm,
-                          budget: {
-                            ...editForm.budget,
-                            type: e.target.value as "per_person" | "total",
-                          },
-                        })
-                      }
-                      className="w-full px-4 py-3 bg-gray-700/50 border border-gray-600 rounded-lg text-white"
-                    >
-                      <option value="per_person">Per Person</option>
-                      <option value="total">Total</option>
-                    </select>
+                    <div className="flex flex-col space-y-4">
+                      <select
+                        value={editForm.budget.type}
+                        onChange={(e) =>
+                          setEditForm({
+                            ...editForm,
+                            budget: {
+                              ...editForm.budget,
+                              type: e.target.value as "per_person" | "total",
+                            },
+                          })
+                        }
+                        className="w-full px-4 py-3 bg-gray-700/50 border border-gray-600 rounded-lg text-white"
+                      >
+                        <option value="per_person">Per Person</option>
+                        <option value="total">Total Budget</option>
+                      </select>
+                      <select
+                        value={editForm.budget.duration}
+                        onChange={(e) =>
+                          setEditForm({
+                            ...editForm,
+                            budget: {
+                              ...editForm.budget,
+                              duration: e.target.value as
+                                | "entire_trip"
+                                | "per_day",
+                            },
+                          })
+                        }
+                        className="w-full px-4 py-3 bg-gray-700/50 border border-gray-600 rounded-lg text-white"
+                      >
+                        <option value="entire_trip">For Entire Trip</option>
+                        <option value="per_day">Per Day</option>
+                      </select>
+                    </div>
                   </div>
                   {errors.budget && (
                     <div className="mt-2 flex items-center text-red-400 text-sm">
@@ -1212,7 +1242,7 @@ export default function ViewTrip() {
                         aiPrompt: e.target.value,
                       })
                     }
-                    placeholder="E.g., Add more adventure activities, focus on local cuisine, include more budget-friendly options..."
+                    placeholder="E.g., Strict budget constraints: Keep activities and accommodations within specified budget type (per person/total) and duration (per day/entire trip). Add preferences: adventure activities, local cuisine, etc."
                     className="w-full px-4 py-3 bg-gray-700/50 border border-gray-600 rounded-lg text-white h-24 resize-none"
                   />
                 </div>
