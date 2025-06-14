@@ -54,7 +54,7 @@ export const preferencesAPI = {
 export const adminAPI = {
   getDashboardStats: async (): Promise<AxiosResponse> => {
     const baseUrl =
-      import.meta.env.VITE_API_BASE_URL || "http://localhost:2300";
+      import.meta.env.VITE_API_BASE_URL;
     return apiConnector(
       "GET",
       `${baseUrl}/admin/stats`,
@@ -66,7 +66,7 @@ export const adminAPI = {
   },
   getAllTrips: async (): Promise<AxiosResponse> => {
     const baseUrl =
-      import.meta.env.VITE_API_BASE_URL || "http://localhost:2300";
+      import.meta.env.VITE_API_BASE_URL;
     return apiConnector(
       "GET",
       `${baseUrl}/admin/trips`,
